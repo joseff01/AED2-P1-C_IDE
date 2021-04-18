@@ -80,25 +80,41 @@ void MainWindow::on_pushButton_clicked()
     //Gettingg text from editor
     QString text = ui->textEdit->toPlainText();
     QStringList list = text.split(QLatin1Char(';'));
-    QStringList package; QString prueba;
+    QStringList package;
 
     //Making text readable for server
+    /*
     string size  = std::to_string(list.size());
     QString qsize =  QString::fromStdString(size);
-    QString display;
+    QString display;*/
+
     for(int i =0; i<list.size();i++)
     {
         QString line = list.at(i);
         line = line.remove("\n");
-        display.append(line + "\n").remove(" ");
+
+        // display.append(line + "\n").remove(" ");
+
         if (line != ""){
             package = identifyStart(line);
+
+
+            /*
             display.append(package.at(0) + ",");
             display.append(package.at(1) + ",");
             display.append(package.at(2) + ",");
             display.append("\n");
+            */
         }
     }
-    ui->applicationLogTextEdit->setPlainText(display);
+
+    //ui->applicationLogTextEdit->setPlainText(display);
+
+}
+void MainWindow::setMainList(QStringList newList){this->mainList = newList;}
+QStringList MainWindow::getMainList(){ return this->mainList;}
+
+void MainWindow::on_nextButton_clicked()
+{
 
 }

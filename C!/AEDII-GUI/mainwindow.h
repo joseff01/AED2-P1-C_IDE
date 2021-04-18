@@ -15,8 +15,17 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    void setMainList(QStringList newList);
+    QStringList getMainList();
+
+
 private slots:
+    QStringList mainList;
+    int positionInt;
+
     void on_pushButton_clicked();
+
+    void on_nextButton_clicked();
 
 private:
     Ui::MainWindow *ui;
