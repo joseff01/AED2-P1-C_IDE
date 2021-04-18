@@ -213,6 +213,7 @@ DIST          = /home/mariana/Qt/5.15.2/gcc_64/mkspecs/features/spec_pre.prf \
 		/home/mariana/Qt/5.15.2/gcc_64/mkspecs/features/qt_config.prf \
 		/home/mariana/Qt/5.15.2/gcc_64/mkspecs/linux-g++/qmake.conf \
 		/home/mariana/Qt/5.15.2/gcc_64/mkspecs/features/spec_post.prf \
+		../C!/AEDII-GUI/.qmake.stash \
 		/home/mariana/Qt/5.15.2/gcc_64/mkspecs/features/exclusive_builds.prf \
 		/home/mariana/Qt/5.15.2/gcc_64/mkspecs/features/toolchain.prf \
 		/home/mariana/Qt/5.15.2/gcc_64/mkspecs/features/default_pre.prf \
@@ -233,7 +234,8 @@ DIST          = /home/mariana/Qt/5.15.2/gcc_64/mkspecs/features/spec_pre.prf \
 		/home/mariana/Qt/5.15.2/gcc_64/mkspecs/features/exceptions.prf \
 		/home/mariana/Qt/5.15.2/gcc_64/mkspecs/features/yacc.prf \
 		/home/mariana/Qt/5.15.2/gcc_64/mkspecs/features/lex.prf \
-		../C!/C!/AEDII-GUI/AEDII-GUI.pro ../C!/AEDII-GUI/mainwindow.h ../C!/AEDII-GUI/main.cpp \
+		../C!/C!/AEDII-GUI/AEDII-GUI.pro ../C!/AEDII-GUI/json.hpp \
+		../C!/AEDII-GUI/mainwindow.h ../C!/AEDII-GUI/main.cpp \
 		../C!/AEDII-GUI/mainwindow.cpp
 QMAKE_TARGET  = AEDII-GUI
 DESTDIR       = 
@@ -402,6 +404,7 @@ Makefile: ../C!/AEDII-GUI/AEDII-GUI.pro /home/mariana/Qt/5.15.2/gcc_64/mkspecs/l
 		/home/mariana/Qt/5.15.2/gcc_64/mkspecs/features/qt_config.prf \
 		/home/mariana/Qt/5.15.2/gcc_64/mkspecs/linux-g++/qmake.conf \
 		/home/mariana/Qt/5.15.2/gcc_64/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		/home/mariana/Qt/5.15.2/gcc_64/mkspecs/features/exclusive_builds.prf \
 		/home/mariana/Qt/5.15.2/gcc_64/mkspecs/features/toolchain.prf \
 		/home/mariana/Qt/5.15.2/gcc_64/mkspecs/features/default_pre.prf \
@@ -580,6 +583,7 @@ Makefile: ../C!/AEDII-GUI/AEDII-GUI.pro /home/mariana/Qt/5.15.2/gcc_64/mkspecs/l
 /home/mariana/Qt/5.15.2/gcc_64/mkspecs/features/qt_config.prf:
 /home/mariana/Qt/5.15.2/gcc_64/mkspecs/linux-g++/qmake.conf:
 /home/mariana/Qt/5.15.2/gcc_64/mkspecs/features/spec_post.prf:
+.qmake.stash:
 /home/mariana/Qt/5.15.2/gcc_64/mkspecs/features/exclusive_builds.prf:
 /home/mariana/Qt/5.15.2/gcc_64/mkspecs/features/toolchain.prf:
 /home/mariana/Qt/5.15.2/gcc_64/mkspecs/features/default_pre.prf:
@@ -616,7 +620,7 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /home/mariana/Qt/5.15.2/gcc_64/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents ../C!/AEDII-GUI/mainwindow.h $(DISTDIR)/
+	$(COPY_FILE) --parents ../C!/AEDII-GUI/json.hpp ../C!/AEDII-GUI/mainwindow.h $(DISTDIR)/
 	$(COPY_FILE) --parents ../C!/AEDII-GUI/main.cpp ../C!/AEDII-GUI/mainwindow.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents ../C!/AEDII-GUI/mainwindow.ui $(DISTDIR)/
 
@@ -1008,7 +1012,37 @@ mainwindow.o: ../C!/AEDII-GUI/mainwindow.cpp ../C!/AEDII-GUI/mainwindow.h \
 		/home/mariana/Qt/5.15.2/gcc_64/include/QtGui/qtouchdevice.h \
 		/home/mariana/Qt/5.15.2/gcc_64/include/QtWidgets/qtabwidget.h \
 		/home/mariana/Qt/5.15.2/gcc_64/include/QtGui/qicon.h \
-		ui_mainwindow.h
+		ui_mainwindow.h \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtCore/QVariant \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtWidgets/QApplication \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtWidgets/qapplication.h \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtCore/qcoreapplication.h \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtCore/qeventloop.h \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtWidgets/qdesktopwidget.h \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtGui/qguiapplication.h \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtGui/qinputmethod.h \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtWidgets/QLabel \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtWidgets/qlabel.h \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtWidgets/qframe.h \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtWidgets/QMenuBar \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtWidgets/qmenubar.h \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtWidgets/qmenu.h \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtWidgets/qaction.h \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtWidgets/qactiongroup.h \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtWidgets/QPushButton \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtWidgets/qpushbutton.h \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtWidgets/qabstractbutton.h \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtWidgets/QStatusBar \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtWidgets/qstatusbar.h \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtWidgets/QTextEdit \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtWidgets/qtextedit.h \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtWidgets/qabstractscrollarea.h \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtGui/qtextdocument.h \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtGui/qtextoption.h \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtGui/qtextcursor.h \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtGui/qtextformat.h \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtGui/qpen.h \
+		/home/mariana/Qt/5.15.2/gcc_64/include/QtWidgets/QWidget
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o ../C!/AEDII-GUI/mainwindow.cpp
 
 moc_mainwindow.o: moc_mainwindow.cpp 

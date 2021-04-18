@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: rgb(211, 215, 207);</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QTextEdit" name="textEdit">
     <property name="geometry">
@@ -22,6 +25,9 @@
       <width>571</width>
       <height>391</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(238, 238, 236);</string>
     </property>
    </widget>
    <widget class="QTextEdit" name="viewTextEdit">
@@ -33,6 +39,9 @@
       <height>631</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(238, 238, 236);</string>
+    </property>
    </widget>
    <widget class="QTextEdit" name="terminalTextEdit">
     <property name="geometry">
@@ -43,6 +52,9 @@
       <height>101</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(238, 238, 236);</string>
+    </property>
    </widget>
    <widget class="QTextEdit" name="applicationLogTextEdit">
     <property name="geometry">
@@ -52,6 +64,9 @@
       <width>571</width>
       <height>91</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(238, 238, 236);</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_2">
@@ -71,10 +86,14 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>530</y>
-      <width>141</width>
-      <height>41</height>
+      <y>540</y>
+      <width>131</width>
+      <height>31</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 75 12pt &quot;Ubuntu Condensed&quot;;
+font: 75 12pt &quot;Waree&quot;;</string>
     </property>
     <property name="text">
      <string>Application Log</string>
@@ -89,6 +108,9 @@
       <height>25</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
     <property name="text">
      <string>Run</string>
     </property>
@@ -101,6 +123,9 @@
       <width>89</width>
       <height>25</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
     </property>
     <property name="text">
      <string>Delete</string>
@@ -115,9 +140,63 @@
       <height>25</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
     <property name="text">
      <string>Next</string>
     </property>
+   </widget>
+   <widget class="QWidget" name="portWidget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>130</y>
+      <width>481</width>
+      <height>281</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border-color: rgb(85, 87, 83);
+background-color: rgb(196, 221, 226);
+selection-color: rgb(238, 238, 236);</string>
+    </property>
+    <widget class="QLineEdit" name="lineEdit">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>70</y>
+       <width>401</width>
+       <height>91</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>40</y>
+       <width>391</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>INSERTE EL PUERTO</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="backButton">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>200</y>
+       <width>89</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Back</string>
+     </property>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

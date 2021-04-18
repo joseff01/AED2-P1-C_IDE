@@ -152,3 +152,10 @@ void MainWindow::on_nextButton_clicked()
         ui->applicationLogTextEdit->setPlainText(display);
     } else {ui->applicationLogTextEdit->setPlainText("Execution Done");}
 }
+
+
+
+void MainWindow::on_backButton_clicked()
+{
+    ui->portWidget->hide();
+}

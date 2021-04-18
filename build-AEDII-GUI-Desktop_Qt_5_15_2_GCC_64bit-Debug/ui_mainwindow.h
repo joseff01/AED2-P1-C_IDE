@@ -12,6 +12,7 @@
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QLabel>
+#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPushButton>
@@ -25,13 +26,19 @@ class Ui_MainWindow
 {
 public:
     QWidget *centralwidget;
-    QPushButton *pushButton;
     QTextEdit *textEdit;
     QTextEdit *viewTextEdit;
     QTextEdit *terminalTextEdit;
     QTextEdit *applicationLogTextEdit;
     QPushButton *pushButton_2;
     QLabel *label;
+    QPushButton *pushButton;
+    QPushButton *deleteButton;
+    QPushButton *nextButton;
+    QWidget *portWidget;
+    QLineEdit *lineEdit;
+    QLabel *label_2;
+    QPushButton *backButton;
     QMenuBar *menubar;
     QStatusBar *statusbar;
 
@@ -40,29 +47,60 @@ public:
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
         MainWindow->resize(1087, 724);
+        MainWindow->setStyleSheet(QString::fromUtf8("background-color: rgb(211, 215, 207);"));
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
-        pushButton = new QPushButton(centralwidget);
-        pushButton->setObjectName(QString::fromUtf8("pushButton"));
-        pushButton->setGeometry(QRect(10, 10, 89, 25));
         textEdit = new QTextEdit(centralwidget);
         textEdit->setObjectName(QString::fromUtf8("textEdit"));
         textEdit->setGeometry(QRect(10, 40, 571, 391));
+        textEdit->setStyleSheet(QString::fromUtf8("background-color: rgb(238, 238, 236);"));
         viewTextEdit = new QTextEdit(centralwidget);
         viewTextEdit->setObjectName(QString::fromUtf8("viewTextEdit"));
         viewTextEdit->setGeometry(QRect(600, 40, 471, 631));
+        viewTextEdit->setStyleSheet(QString::fromUtf8("background-color: rgb(238, 238, 236);"));
         terminalTextEdit = new QTextEdit(centralwidget);
         terminalTextEdit->setObjectName(QString::fromUtf8("terminalTextEdit"));
         terminalTextEdit->setGeometry(QRect(10, 430, 571, 101));
+        terminalTextEdit->setStyleSheet(QString::fromUtf8("background-color: rgb(238, 238, 236);"));
         applicationLogTextEdit = new QTextEdit(centralwidget);
         applicationLogTextEdit->setObjectName(QString::fromUtf8("applicationLogTextEdit"));
         applicationLogTextEdit->setGeometry(QRect(13, 579, 571, 91));
+        applicationLogTextEdit->setStyleSheet(QString::fromUtf8("background-color: rgb(238, 238, 236);"));
         pushButton_2 = new QPushButton(centralwidget);
         pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
         pushButton_2->setGeometry(QRect(490, 540, 89, 25));
         label = new QLabel(centralwidget);
         label->setObjectName(QString::fromUtf8("label"));
-        label->setGeometry(QRect(20, 530, 141, 41));
+        label->setGeometry(QRect(20, 540, 131, 31));
+        label->setStyleSheet(QString::fromUtf8("font: 75 12pt \"Ubuntu Condensed\";\n"
+"font: 75 12pt \"Waree\";"));
+        pushButton = new QPushButton(centralwidget);
+        pushButton->setObjectName(QString::fromUtf8("pushButton"));
+        pushButton->setGeometry(QRect(10, 10, 89, 25));
+        pushButton->setStyleSheet(QString::fromUtf8(""));
+        deleteButton = new QPushButton(centralwidget);
+        deleteButton->setObjectName(QString::fromUtf8("deleteButton"));
+        deleteButton->setGeometry(QRect(490, 10, 89, 25));
+        deleteButton->setStyleSheet(QString::fromUtf8(""));
+        nextButton = new QPushButton(centralwidget);
+        nextButton->setObjectName(QString::fromUtf8("nextButton"));
+        nextButton->setGeometry(QRect(110, 10, 89, 25));
+        nextButton->setStyleSheet(QString::fromUtf8(""));
+        portWidget = new QWidget(centralwidget);
+        portWidget->setObjectName(QString::fromUtf8("portWidget"));
+        portWidget->setGeometry(QRect(350, 130, 481, 281));
+        portWidget->setStyleSheet(QString::fromUtf8("border-color: rgb(85, 87, 83);\n"
+"background-color: rgb(196, 221, 226);\n"
+"selection-color: rgb(238, 238, 236);"));
+        lineEdit = new QLineEdit(portWidget);
+        lineEdit->setObjectName(QString::fromUtf8("lineEdit"));
+        lineEdit->setGeometry(QRect(50, 70, 401, 91));
+        label_2 = new QLabel(portWidget);
+        label_2->setObjectName(QString::fromUtf8("label_2"));
+        label_2->setGeometry(QRect(60, 40, 391, 17));
+        backButton = new QPushButton(portWidget);
+        backButton->setObjectName(QString::fromUtf8("backButton"));
+        backButton->setGeometry(QRect(200, 200, 89, 25));
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
@@ -80,9 +118,13 @@ public:
     void retranslateUi(QMainWindow *MainWindow)
     {
         MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "MainWindow", nullptr));
-        pushButton->setText(QCoreApplication::translate("MainWindow", "Run", nullptr));
         pushButton_2->setText(QCoreApplication::translate("MainWindow", "Clear", nullptr));
         label->setText(QCoreApplication::translate("MainWindow", "Application Log", nullptr));
+        pushButton->setText(QCoreApplication::translate("MainWindow", "Run", nullptr));
+        deleteButton->setText(QCoreApplication::translate("MainWindow", "Delete", nullptr));
+        nextButton->setText(QCoreApplication::translate("MainWindow", "Next", nullptr));
+        label_2->setText(QCoreApplication::translate("MainWindow", "INSERTE EL PUERTO", nullptr));
+        backButton->setText(QCoreApplication::translate("MainWindow", "Back", nullptr));
     } // retranslateUi
 
 };
