@@ -7,9 +7,10 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-
+#include <json.hpp>
 
 using namespace std;
+using json = nlohmann::json;
 
 void error(const char *msg)
 {
@@ -17,12 +18,10 @@ void error(const char *msg)
     exit(1);
 }
 
-char findSocket(){
-
-}
 
 int baseSocketNumber = 5000;
 void bindingProcess(int* sockfd, int* portno, struct sockaddr_in* serv_addr){
+
     *portno = baseSocketNumber;
     serv_addr->sin_family = AF_UNIX;
     serv_addr->sin_port = htons(*portno);
@@ -40,6 +39,7 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
+
     int sockfd, newsockfd, portno, n;
     int option = 1;
     socklen_t clilen;
@@ -55,7 +55,8 @@ int main(int argc, char *argv[])
     if (sockfd < 0){
         error("ERROR opening socket");
     }
-    bzero((char *) &serv_addr, sizeof(serv_addr));
+
+    memset((char *) &serv_addr, 0, sizeof(serv_addr));
 
     bindingProcess(&sockfd, &portno, &serv_addr);
 
@@ -69,11 +70,15 @@ int main(int argc, char *argv[])
         error("ERROR on accept");
     }
 
+
     void* startAdress = malloc(10000);
 
     cout << startAdress << endl;
 
     free(startAdress);
+
+
+
 
     return a.exec();
 }
