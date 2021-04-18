@@ -7,7 +7,7 @@
 *****************************************************************************/
 
 #include <memory>
-#include "../AEDII-GUI/mainwindow.h"
+#include "../C!/AEDII-GUI/mainwindow.h"
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
