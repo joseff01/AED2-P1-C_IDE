@@ -95,7 +95,7 @@ void MainWindow::on_pushButton_clicked()
     for(int i =0; i<list.size();i++)
     {
         QString line = list.at(i);
-        line = line.remove("\n");
+        line = line.remove("\n").remove(" ");
 
         // display.append(line + "\n").remove(" ");
 
@@ -119,31 +119,36 @@ std::list<QStringList> MainWindow::getMainList(){ return this->mainList;}
 
 void MainWindow::on_nextButton_clicked()
 {
-    QStringList package = this->getMainList().front();
 
-    QString type = package.at(0);
+    if(!this->getMainList().empty()){
+        QStringList package = this->getMainList().front();
+        std::list<QStringList> temp = this->getMainList();
+        temp.pop_front();
+        this->setMainList(temp);
+        QString type = package.at(0);
 
-    json j;
-    j["type"] = type.toStdString();
-    j["name"] = package.at(1).toStdString();
-    j["value"] = package.at(2).toStdString();
+        json j;
+        j["type"] = type.toStdString();
+        j["name"] = package.at(1).toStdString();
+        j["value"] = package.at(2).toStdString();
 
-    if(type.contains("int",Qt::CaseSensitive)){
-        j["size"] = 4;
-    } else if(type.contains("double",Qt::CaseSensitive)){
-        j["size"] = 8;
-    } else if(type.contains("long",Qt::CaseSensitive)){
-        j["size"] = 8;
-    } else if(type.contains("char",Qt::CaseSensitive)){
-        j["size"] = 1;
-    } else if(type.contains("reference",Qt::CaseSensitive)){
-        j["size"] = 4;
-    } else if(type.contains("float",Qt::CaseSensitive)){
-        j["size"] = 4;
-    } else {
-        j["size"] = "NULL";
-    }
+        if(type.contains("int",Qt::CaseSensitive)){
+            j["size"] = 4;
+        } else if(type.contains("double",Qt::CaseSensitive)){
+            j["size"] = 8;
+        } else if(type.contains("long",Qt::CaseSensitive)){
+            j["size"] = 8;
+        } else if(type.contains("char",Qt::CaseSensitive)){
+            j["size"] = 1;
+        } else if(type.contains("reference",Qt::CaseSensitive)){
+            j["size"] = 4;
+        } else if(type.contains("float",Qt::CaseSensitive)){
+            j["size"] = 4;
+        } else {
+            j["size"] = "NULL";
+        }
 
-    QString display = QString::fromStdString(j.dump());
-    ui->applicationLogTextEdit->setPlainText(display);
+        QString display = QString::fromStdString(j.dump());
+        ui->applicationLogTextEdit->setPlainText(display);
+    } else {ui->applicationLogTextEdit->setPlainText("Execution Done");}
 }
