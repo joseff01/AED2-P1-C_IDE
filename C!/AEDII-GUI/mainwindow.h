@@ -27,6 +27,8 @@ private slots:
     void on_nextButton_clicked();
     void on_backButton_clicked();
 
+    void on_deleteButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     std::list<QStringList> mainList;
