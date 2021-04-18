@@ -26,8 +26,6 @@ private slots:
     void on_backButton_clicked();
 
 private:
-    QStringList mainList;
-    int positionInt;
     Ui::MainWindow *ui;
     std::list<QStringList> mainList;
     int positionInt;
