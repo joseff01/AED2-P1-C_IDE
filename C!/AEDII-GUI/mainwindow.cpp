@@ -1,38 +1,28 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <string>
 #include <list>
 #include "json.hpp"
 
 using json = nlohmann::json;
-using namespace std;
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
-    //  Caracteristicas de los textEdit
-    ui->applicationLogTextEdit->setReadOnly(true);
-    ui->terminalTextEdit ->setReadOnly(true);
-    ui->viewTextEdit->setReadOnly(true);
 }
 
-MainWindow::~MainWindow()
-{
-    delete ui;
-}
-
+MainWindow::~MainWindow() { delete ui; }
 
 /*
 * QStringList identifyStatrt(QString):
 * Receives a QString
 * Returns a list with the identified type,name and value.
 */
+
 QStringList identifyStart(QString text)
 { 
-
     QString nameType;
     QString value;
     QString type;
@@ -78,7 +68,6 @@ QStringList identifyStart(QString text)
 }
 
 void MainWindow::on_pushButton_clicked()
-//int a = 5;
 {
     //Gettingg text from editor
     QString text = ui->textEdit->toPlainText();
@@ -86,31 +75,16 @@ void MainWindow::on_pushButton_clicked()
     QStringList package;
     std::list<QStringList> mainList;
 
-    //Making text readable for server
-    /*
-    string size  = std::to_string(list.size());
-    QString qsize =  QString::fromStdString(size);
-    QString display;*/
-
     for(int i =0; i<list.size();i++)
     {
         QString line = list.at(i);
         line = line.remove("\n").remove(" ");
-
-        // display.append(line + "\n").remove(" ");
-
-        if (line != ""){
+        if (line != "")
+        {
             package = identifyStart(line);
             mainList.push_back(package);
-            /*
-            display.append(package.at(0) + ",");
-            display.append(package.at(1) + ",");
-            display.append(package.at(2) + ",");
-            display.append("\n");
-            */
         }
     }
-    //ui->applicationLogTextEdit->setPlainText(display);
     this->setMainList(mainList);
 
 }
@@ -119,7 +93,6 @@ std::list<QStringList> MainWindow::getMainList(){ return this->mainList;}
 
 void MainWindow::on_nextButton_clicked()
 {
-
     if(!this->getMainList().empty()){
         QStringList package = this->getMainList().front();
         std::list<QStringList> temp = this->getMainList();
@@ -153,9 +126,26 @@ void MainWindow::on_nextButton_clicked()
     } else {ui->applicationLogTextEdit->setPlainText("Execution Done");}
 }
 
+void MainWindow::cout(string newText){
+    QString textDisplay = QString::fromStdString(newText);
+    textDisplay.insert(0,' ');
+    textDisplay.insert(0,'>');
+    ui->applicationLogTextEdit->append(textDisplay);
+}
+void MainWindow::ramView(string memory, string value, string name, string reference){
+    QString memoryDisplay = QString::fromStdString(memory);
+    QString valueDisplay = QString::fromStdString(value);
+    QString nameDisplay = QString::fromStdString(name);
+    QString referenceDisplay = QString::fromStdString(reference);
+    ui->memoryTextEdit->append(memoryDisplay);
+    ui->valueTextEdit->append(valueDisplay);
+    ui->nameTextEdit->append(nameDisplay);
+    ui->referenceTextEdit->append(referenceDisplay);
+}
 
+void MainWindow::on_backButton_clicked() {
+    QString text = ui->portTextEdit->toPlainText();
+    string strText = text.toStdString();
 
-void MainWindow::on_backButton_clicked()
-{
     ui->portWidget->hide();
 }
