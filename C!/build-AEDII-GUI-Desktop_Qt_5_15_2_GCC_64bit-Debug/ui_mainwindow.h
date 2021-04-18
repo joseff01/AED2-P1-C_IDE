@@ -25,13 +25,15 @@ class Ui_MainWindow
 {
 public:
     QWidget *centralwidget;
-    QPushButton *pushButton;
     QTextEdit *textEdit;
     QTextEdit *viewTextEdit;
     QTextEdit *terminalTextEdit;
     QTextEdit *applicationLogTextEdit;
     QPushButton *pushButton_2;
     QLabel *label;
+    QPushButton *pushButton;
+    QPushButton *deleteButton;
+    QPushButton *nextButton;
     QMenuBar *menubar;
     QStatusBar *statusbar;
 
@@ -42,9 +44,6 @@ public:
         MainWindow->resize(1087, 724);
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
-        pushButton = new QPushButton(centralwidget);
-        pushButton->setObjectName(QString::fromUtf8("pushButton"));
-        pushButton->setGeometry(QRect(10, 10, 89, 25));
         textEdit = new QTextEdit(centralwidget);
         textEdit->setObjectName(QString::fromUtf8("textEdit"));
         textEdit->setGeometry(QRect(10, 40, 571, 391));
@@ -63,6 +62,15 @@ public:
         label = new QLabel(centralwidget);
         label->setObjectName(QString::fromUtf8("label"));
         label->setGeometry(QRect(20, 530, 141, 41));
+        pushButton = new QPushButton(centralwidget);
+        pushButton->setObjectName(QString::fromUtf8("pushButton"));
+        pushButton->setGeometry(QRect(10, 10, 89, 25));
+        deleteButton = new QPushButton(centralwidget);
+        deleteButton->setObjectName(QString::fromUtf8("deleteButton"));
+        deleteButton->setGeometry(QRect(490, 10, 89, 25));
+        nextButton = new QPushButton(centralwidget);
+        nextButton->setObjectName(QString::fromUtf8("nextButton"));
+        nextButton->setGeometry(QRect(110, 10, 89, 25));
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
@@ -80,9 +88,11 @@ public:
     void retranslateUi(QMainWindow *MainWindow)
     {
         MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "MainWindow", nullptr));
-        pushButton->setText(QCoreApplication::translate("MainWindow", "Run", nullptr));
         pushButton_2->setText(QCoreApplication::translate("MainWindow", "Clear", nullptr));
         label->setText(QCoreApplication::translate("MainWindow", "Application Log", nullptr));
+        pushButton->setText(QCoreApplication::translate("MainWindow", "Run", nullptr));
+        deleteButton->setText(QCoreApplication::translate("MainWindow", "Delete", nullptr));
+        nextButton->setText(QCoreApplication::translate("MainWindow", "Next", nullptr));
     } // retranslateUi
 
 };

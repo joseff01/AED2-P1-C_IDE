@@ -1,7 +1,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <string>
+#include <list>
+#include "json.hpp"
 
+using json = nlohmann::json;
 using namespace std;
 
 MainWindow::MainWindow(QWidget *parent)
@@ -50,19 +53,19 @@ QStringList identifyStart(QString text)
         name = nameType.remove("int",Qt::CaseSensitive).remove(" ").remove("\n");
     } else if(nameType.contains("double",Qt::CaseSensitive)){
         type = "double";
-        name = nameType.remove("double",Qt::CaseSensitive).remove(" ").remove("\n");;
+        name = nameType.remove("double",Qt::CaseSensitive).remove(" ").remove("\n");
     } else if(nameType.contains("long",Qt::CaseSensitive)){
         type = "long";
-        name = nameType.remove("long",Qt::CaseSensitive).remove(" ").remove("\n");;
+        name = nameType.remove("long",Qt::CaseSensitive).remove(" ").remove("\n");
     } else if(nameType.contains("char",Qt::CaseSensitive)){
         type = "char";
-        name = nameType.remove("char",Qt::CaseSensitive).remove(" ").remove("\n");;
+        name = nameType.remove("char",Qt::CaseSensitive).remove(" ").remove("\n");
     } else if(nameType.contains("reference",Qt::CaseSensitive)){
         type = "reference";
-        name = nameType.remove("reference",Qt::CaseSensitive).remove(" ").remove("\n");;
+        name = nameType.remove("reference",Qt::CaseSensitive).remove(" ").remove("\n");
     } else if(nameType.contains("float",Qt::CaseSensitive)){
         type = "float";
-        name = nameType.remove("float",Qt::CaseSensitive).remove(" ").remove("\n");;
+        name = nameType.remove("float",Qt::CaseSensitive).remove(" ").remove("\n");
     } else {
         type = "NULL";
         name = nameType.remove(" ").remove("\n");
@@ -81,6 +84,7 @@ void MainWindow::on_pushButton_clicked()
     QString text = ui->textEdit->toPlainText();
     QStringList list = text.split(QLatin1Char(';'));
     QStringList package;
+    std::list<QStringList> mainList;
 
     //Making text readable for server
     /*
@@ -97,8 +101,7 @@ void MainWindow::on_pushButton_clicked()
 
         if (line != ""){
             package = identifyStart(line);
-
-
+            mainList.push_back(package);
             /*
             display.append(package.at(0) + ",");
             display.append(package.at(1) + ",");
@@ -107,14 +110,40 @@ void MainWindow::on_pushButton_clicked()
             */
         }
     }
-
     //ui->applicationLogTextEdit->setPlainText(display);
+    this->setMainList(mainList);
 
 }
-void MainWindow::setMainList(QStringList newList){this->mainList = newList;}
-QStringList MainWindow::getMainList(){ return this->mainList;}
+void MainWindow::setMainList(std::list<QStringList> newList){this->mainList = newList;}
+std::list<QStringList> MainWindow::getMainList(){ return this->mainList;}
 
 void MainWindow::on_nextButton_clicked()
 {
+    QStringList package = this->getMainList().front();
 
+    QString type = package.at(0);
+
+    json j;
+    j["type"] = type.toStdString();
+    j["name"] = package.at(1).toStdString();
+    j["value"] = package.at(2).toStdString();
+
+    if(type.contains("int",Qt::CaseSensitive)){
+        j["size"] = 4;
+    } else if(type.contains("double",Qt::CaseSensitive)){
+        j["size"] = 8;
+    } else if(type.contains("long",Qt::CaseSensitive)){
+        j["size"] = 8;
+    } else if(type.contains("char",Qt::CaseSensitive)){
+        j["size"] = 1;
+    } else if(type.contains("reference",Qt::CaseSensitive)){
+        j["size"] = 4;
+    } else if(type.contains("float",Qt::CaseSensitive)){
+        j["size"] = 4;
+    } else {
+        j["size"] = "NULL";
+    }
+
+    QString display = QString::fromStdString(j.dump());
+    ui->applicationLogTextEdit->setPlainText(display);
 }

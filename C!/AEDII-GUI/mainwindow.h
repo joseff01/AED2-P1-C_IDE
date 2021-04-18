@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <list>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -15,19 +16,16 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void setMainList(QStringList newList);
-    QStringList getMainList();
-
+    void setMainList(std::list<QStringList> newList);
+    std::list<QStringList> getMainList();
 
 private slots:
-    QStringList mainList;
-    int positionInt;
-
     void on_pushButton_clicked();
-
     void on_nextButton_clicked();
 
 private:
     Ui::MainWindow *ui;
+    std::list<QStringList> mainList;
+    int positionInt;
 };
 #endif // MAINWINDOW_H

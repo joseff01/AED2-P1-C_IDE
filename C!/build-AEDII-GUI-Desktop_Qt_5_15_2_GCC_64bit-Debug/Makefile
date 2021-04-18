@@ -238,7 +238,8 @@ DIST          = ../../../../Qt/5.15.2/gcc_64/mkspecs/features/spec_pre.prf \
 		../../../../Qt/5.15.2/gcc_64/mkspecs/features/exceptions.prf \
 		../../../../Qt/5.15.2/gcc_64/mkspecs/features/yacc.prf \
 		../../../../Qt/5.15.2/gcc_64/mkspecs/features/lex.prf \
-		../AEDII-GUI/AEDII-GUI.pro ../AEDII-GUI/mainwindow.h ../AEDII-GUI/main.cpp \
+		../AEDII-GUI/AEDII-GUI.pro ../AEDII-GUI/json.hpp \
+		../AEDII-GUI/mainwindow.h ../AEDII-GUI/main.cpp \
 		../AEDII-GUI/mainwindow.cpp
 QMAKE_TARGET  = AEDII-GUI
 DESTDIR       = 
@@ -631,7 +632,7 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents ../../../../Qt/5.15.2/gcc_64/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents ../AEDII-GUI/mainwindow.h $(DISTDIR)/
+	$(COPY_FILE) --parents ../AEDII-GUI/json.hpp ../AEDII-GUI/mainwindow.h $(DISTDIR)/
 	$(COPY_FILE) --parents ../AEDII-GUI/main.cpp ../AEDII-GUI/mainwindow.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents ../AEDII-GUI/mainwindow.ui $(DISTDIR)/
 
