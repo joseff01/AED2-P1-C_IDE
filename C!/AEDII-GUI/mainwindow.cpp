@@ -210,3 +210,13 @@ void MainWindow::on_backButton_clicked() {
 
     ui->portWidget->hide();
 }
+
+void MainWindow::on_deleteButton_clicked()
+{
+    ui->textEdit->clear();
+    ui->memoryTextEdit->clear();
+    ui->valueTextEdit->clear();
+    ui->nameTextEdit->clear();
+    ui->referenceTextEdit->clear();
+
+}
