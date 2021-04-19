@@ -189,6 +189,7 @@ void connectToMServer(int portno){
         serverError("ERROR connecting");
     }
     std::cout << "Connection established." << std::endl;
+    /*
     memset(buffer,0,255);
     string testString = "The quick brown fox jumps over the lazy dog";
     strncpy(buffer, testString.c_str(),255);
@@ -198,6 +199,7 @@ void connectToMServer(int portno){
     }
 
     close(sockfd);
+    */
 
 
 }
