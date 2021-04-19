@@ -2,9 +2,22 @@
 #include "ui_mainwindow.h"
 #include <list>
 #include "json.hpp"
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <iostream>
+
 
 using json = nlohmann::json;
 
+//Server Connection Glstdio::obal Variables:
+int sockfd;
+char buffer[255];
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -143,9 +156,57 @@ void MainWindow::ramView(string memory, string value, string name, string refere
     ui->referenceTextEdit->append(referenceDisplay);
 }
 
+void serverError(const char *msg)
+{
+    perror(msg);
+    exit(1);
+}
+
+void connectToMServer(int portno){
+    int option = 1;
+    struct sockaddr_in serv_addr;
+    char const *localHost = "localhost";
+    struct hostent *server;
+
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (setsockopt(sockfd,SOL_SOCKET,SO_REUSEPORT,&option,sizeof(int)) == -1) {
+        perror("setsockopt");
+        exit(1);
+    }
+    if (sockfd < 0)
+      serverError("ERROR opening socket");
+    server = gethostbyname(localHost);
+    if (server == NULL){
+      fprintf(stderr,"ERROR, no such host");
+      exit(0);
+    }
+    memset((char *) &serv_addr, 0, sizeof(serv_addr));
+    serv_addr.sin_family = AF_INET;
+    memcpy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
+    serv_addr.sin_port = htons(portno);
+    std::cout << "Connecting to mserver..." << std::endl;
+    if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) {
+        serverError("ERROR connecting");
+    }
+    std::cout << "Connection established." << std::endl;
+    memset(buffer,0,255);
+    string testString = "The quick brown fox jumps over the lazy dog";
+    strncpy(buffer, testString.c_str(),255);
+    int n = write(sockfd,buffer,strlen(buffer));
+    if (n < 0){
+        serverError("ERROR writing to socket");
+    }
+
+    close(sockfd);
+
+
+}
+
 void MainWindow::on_backButton_clicked() {
     QString text = ui->portTextEdit->toPlainText();
     string strText = text.toStdString();
+    int socketNum = std::stoi(strText);
+    connectToMServer(socketNum);
 
     ui->portWidget->hide();
 }
