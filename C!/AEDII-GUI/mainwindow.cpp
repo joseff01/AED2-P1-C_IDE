@@ -149,7 +149,7 @@ void MainWindow::on_nextButton_clicked()
         }
 
         QString display = QString::fromStdString(j.dump());
-        ui->applicationLogTextEdit->setPlainText(display);
+        ui->applicationLogTextEdit->setText(display);
     } else {ui->applicationLogTextEdit->setPlainText("Execution Done");}
 }
 
