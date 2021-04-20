@@ -200,6 +200,7 @@ void connectToMServer(int portno){
     if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) {
         serverError("ERROR connecting");
     }
+    /*
     std::cout << "Connection established." << std::endl;
     memset(buffer,0,255);
     string testString = "The quick brown fox jumps over the lazy dog";
@@ -207,7 +208,7 @@ void connectToMServer(int portno){
     int n = write(sockfd,buffer,strlen(buffer));
     if (n < 0){
         serverError("ERROR writing to socket");
-    }
+    }*/
 }
 
 void MainWindow::on_backButton_clicked() {
