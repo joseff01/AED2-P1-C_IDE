@@ -1033,6 +1033,11 @@ mainwindow.o: ../AEDII-GUI/mainwindow.cpp ../AEDII-GUI/mainwindow.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qdesktopwidget.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtGui/qguiapplication.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtGui/qinputmethod.h \
+		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QHBoxLayout \
+		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qboxlayout.h \
+		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qlayout.h \
+		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qlayoutitem.h \
+		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qgridlayout.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QLabel \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qlabel.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qframe.h \
@@ -1041,12 +1046,8 @@ mainwindow.o: ../AEDII-GUI/mainwindow.cpp ../AEDII-GUI/mainwindow.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qmenu.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qaction.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qactiongroup.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QPushButton \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qpushbutton.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qabstractbutton.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QStatusBar \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qstatusbar.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QTextEdit \
+		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QPlainTextEdit \
+		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qplaintextedit.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qtextedit.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qabstractscrollarea.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtGui/qtextdocument.h \
@@ -1054,7 +1055,19 @@ mainwindow.o: ../AEDII-GUI/mainwindow.cpp ../AEDII-GUI/mainwindow.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtGui/qtextcursor.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtGui/qtextformat.h \
 		../../../../Qt/5.15.2/gcc_64/include/QtGui/qpen.h \
-		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QWidget
+		../../../../Qt/5.15.2/gcc_64/include/QtGui/qabstracttextdocumentlayout.h \
+		../../../../Qt/5.15.2/gcc_64/include/QtGui/qtextlayout.h \
+		../../../../Qt/5.15.2/gcc_64/include/QtGui/qglyphrun.h \
+		../../../../Qt/5.15.2/gcc_64/include/QtGui/qrawfont.h \
+		../../../../Qt/5.15.2/gcc_64/include/QtGui/qfontdatabase.h \
+		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QPushButton \
+		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qpushbutton.h \
+		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qabstractbutton.h \
+		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QStatusBar \
+		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/qstatusbar.h \
+		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QTextEdit \
+		../../../../Qt/5.15.2/gcc_64/include/QtWidgets/QWidget \
+		../AEDII-GUI/json.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o ../AEDII-GUI/mainwindow.cpp
 
 moc_mainwindow.o: moc_mainwindow.cpp 

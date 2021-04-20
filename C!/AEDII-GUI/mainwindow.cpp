@@ -1,38 +1,45 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <string>
 #include <list>
 #include "json.hpp"
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <iostream>
+
 
 using json = nlohmann::json;
-using namespace std;
+
+//Server Connection Glstdio::obal Variables:
+int sockfd;
+char buffer[255];
+void serverError(const char *msg);
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
-    //  Caracteristicas de los textEdit
-    ui->applicationLogTextEdit->setReadOnly(true);
-    ui->terminalTextEdit ->setReadOnly(true);
-    ui->viewTextEdit->setReadOnly(true);
 }
 
-MainWindow::~MainWindow()
-{
+MainWindow::~MainWindow() {
+    ::close(sockfd);
     delete ui;
 }
-
 
 /*
 * QStringList identifyStatrt(QString):
 * Receives a QString
 * Returns a list with the identified type,name and value.
 */
-QStringList identifyStart(QString text)
-{ 
 
+QStringList identifyStart(QString text)
+{
     QString nameType;
     QString value;
     QString type;
@@ -78,7 +85,6 @@ QStringList identifyStart(QString text)
 }
 
 void MainWindow::on_pushButton_clicked()
-//int a = 5;
 {
     //Gettingg text from editor
     QString text = ui->textEdit->toPlainText();
@@ -86,31 +92,16 @@ void MainWindow::on_pushButton_clicked()
     QStringList package;
     std::list<QStringList> mainList;
 
-    //Making text readable for server
-    /*
-    string size  = std::to_string(list.size());
-    QString qsize =  QString::fromStdString(size);
-    QString display;*/
-
     for(int i =0; i<list.size();i++)
     {
         QString line = list.at(i);
         line = line.remove("\n").remove(" ");
-
-        // display.append(line + "\n").remove(" ");
-
-        if (line != ""){
+        if (line != "")
+        {
             package = identifyStart(line);
             mainList.push_back(package);
-            /*
-            display.append(package.at(0) + ",");
-            display.append(package.at(1) + ",");
-            display.append(package.at(2) + ",");
-            display.append("\n");
-            */
         }
     }
-    //ui->applicationLogTextEdit->setPlainText(display);
     this->setMainList(mainList);
 
 }
@@ -119,7 +110,6 @@ std::list<QStringList> MainWindow::getMainList(){ return this->mainList;}
 
 void MainWindow::on_nextButton_clicked()
 {
-
     if(!this->getMainList().empty()){
         QStringList package = this->getMainList().front();
         std::list<QStringList> temp = this->getMainList();
@@ -148,14 +138,93 @@ void MainWindow::on_nextButton_clicked()
             j["size"] = "NULL";
         }
 
-        QString display = QString::fromStdString(j.dump());
-        ui->applicationLogTextEdit->setText(display);
+        memset(buffer,0,255);
+        string jsonString = j.dump();
+        QString display = QString::fromStdString(jsonString);
+        ui->terminalTextEdit->append("\n"+display);
+        strncpy(buffer, jsonString.c_str(),255);
+        int n = write(sockfd,buffer,strlen(buffer));
+        if (n < 0){
+            serverError("ERROR writing to socket");
+        }
+
     } else {ui->applicationLogTextEdit->setPlainText("Execution Done");}
 }
 
+void MainWindow::cout(string newText){
+    QString textDisplay = QString::fromStdString(newText);
+    textDisplay.insert(0,' ');
+    textDisplay.insert(0,'>');
+    ui->applicationLogTextEdit->append(textDisplay);
+}
+void MainWindow::ramView(string memory, string value, string name, string reference){
+    QString memoryDisplay = QString::fromStdString(memory);
+    QString valueDisplay = QString::fromStdString(value);
+    QString nameDisplay = QString::fromStdString(name);
+    QString referenceDisplay = QString::fromStdString(reference);
+    ui->memoryTextEdit->append(memoryDisplay);
+    ui->valueTextEdit->append(valueDisplay);
+    ui->nameTextEdit->append(nameDisplay);
+    ui->referenceTextEdit->append(referenceDisplay);
+}
 
-
-void MainWindow::on_backButton_clicked()
+void serverError(const char *msg)
 {
+    perror(msg);
+    exit(1);
+}
+
+void connectToMServer(int portno){
+    int option = 1;
+    struct sockaddr_in serv_addr;
+    char const *localHost = "localhost";
+    struct hostent *server;
+
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (setsockopt(sockfd,SOL_SOCKET,SO_REUSEPORT,&option,sizeof(int)) == -1) {
+        perror("setsockopt");
+        exit(1);
+    }
+    if (sockfd < 0)
+      serverError("ERROR opening socket");
+    server = gethostbyname(localHost);
+    if (server == NULL){
+      fprintf(stderr,"ERROR, no such host");
+      exit(0);
+    }
+    memset((char *) &serv_addr, 0, sizeof(serv_addr));
+    serv_addr.sin_family = AF_INET;
+    memcpy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
+    serv_addr.sin_port = htons(portno);
+    std::cout << "Connecting to mserver..." << std::endl;
+    if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) {
+        serverError("ERROR connecting");
+    }
+    std::cout << "Connection established." << std::endl;
+    memset(buffer,0,255);
+    string testString = "The quick brown fox jumps over the lazy dog";
+    strncpy(buffer, testString.c_str(),255);
+    int n = write(sockfd,buffer,strlen(buffer));
+    if (n < 0){
+        serverError("ERROR writing to socket");
+    }
+}
+
+void MainWindow::on_backButton_clicked() {
+    QString text = ui->portTextEdit->toPlainText();
+    string strText = text.toStdString();
+    int socketNum = std::stoi(strText);
+    connectToMServer(socketNum);
+
     ui->portWidget->hide();
+}
+
+void MainWindow::on_deleteButton_clicked()
+{
+    ui->textEdit->clear();
+    ui->memoryTextEdit->clear();
+    ui->valueTextEdit->clear();
+    ui->nameTextEdit->clear();
+    ui->referenceTextEdit->clear();
+
 }

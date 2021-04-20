@@ -23,7 +23,7 @@ int baseSocketNumber = 5000;
 void bindingProcess(int* sockfd, int* portno, struct sockaddr_in* serv_addr){
 
     *portno = baseSocketNumber;
-    serv_addr->sin_family = AF_UNIX;
+    serv_addr->sin_family = AF_INET;
     serv_addr->sin_port = htons(*portno);
     serv_addr->sin_addr.s_addr = INADDR_ANY;
 
@@ -39,7 +39,6 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-
     int sockfd, newsockfd, portno, n;
     int option = 1;
     socklen_t clilen;
@@ -47,7 +46,7 @@ int main(int argc, char *argv[])
     struct sockaddr_in serv_addr, cli_addr;
 
     cout << "Opening Socket..." << endl;
-    sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (setsockopt(sockfd,SOL_SOCKET,SO_REUSEPORT,&option,sizeof(int)) == -1) {
         perror("setsockopt");
         exit(1);
@@ -69,6 +68,17 @@ int main(int argc, char *argv[])
     if (newsockfd < 0) {
         error("ERROR on accept");
     }
+
+    cout << "Connected to C! client" << endl;
+
+    memset(buffer, 0, 255);
+
+    n = read(newsockfd,buffer,255);
+    if (n < 0) error("ERROR reading from socket");
+    printf("Here is the message: %s\n",buffer);
+
+    close(newsockfd);
+    close(sockfd);
 
 
     void* startAdress = malloc(10000);
