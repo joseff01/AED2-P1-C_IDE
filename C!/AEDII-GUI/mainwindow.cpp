@@ -152,9 +152,11 @@ void MainWindow::on_nextButton_clicked()
             j["size"] = "NULL";
         }
 
-        string jsonString = j.dump();
-        QString display = QString::fromStdString(jsonString);
-        ui->terminalTextEdit->append("\n"+display);
+        if(j.at("name") != ""){
+            string jsonString = j.dump();
+            QString display = QString::fromStdString(jsonString);
+            ui->terminalTextEdit->append("\n"+display);
+        }
 
         /*
         memset(buffer,0,255);
