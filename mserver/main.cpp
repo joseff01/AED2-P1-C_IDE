@@ -55,7 +55,6 @@ void analizeBuffer(){
             string variableValue = jsonBuffer["value"];
             try {
                 long double ld;
-                float i = 12.5265426542652462546245;
                 if ((std::istringstream(variableValue) >> ld >> std::ws).eof()){
                     *placementAdress = atoi(variableValue.c_str());
                 }else{
@@ -73,21 +72,27 @@ void analizeBuffer(){
                 }*/
             }
             returningAdress = placementAdress;
-        }if (jsonBuffer["type"] == "int"){
+        }if (jsonBuffer["type"] == "float"){
             char* modifiedVoidPointer = (char*)  startAdress + mainOffset;
-            int* placementAdress = (int*) modifiedVoidPointer;
+            float* placementAdress = (float*) modifiedVoidPointer;
             string variableValue = jsonBuffer["value"];
             try {
                 long double ld;
-                float i = 12.5265426542652462546245;
+                if (variableValue.back() == 'f'){
+                    variableValue.pop_back();
+                    if ((std::istringstream(variableValue) >> ld >> std::ws).eof()){
+                        *placementAdress = stof(variableValue);
+                    }else{
+                        throw variableValue;
+                    }
+                }
                 if ((std::istringstream(variableValue) >> ld >> std::ws).eof()){
-                    *placementAdress = atoi(variableValue.c_str());
+                    *placementAdress = stof(variableValue);
                 }else{
                     throw variableValue;
                 }
             }  catch (string variableValue){
-                string storageError ="ERROR: " + variableValue + " is not a valid int.";
-                cout << storageError << endl;
+                string storageError ="ERROR: " + variableValue + " is not a valid float.";
                 /*
                 memset(buffer,0,255);
                 strncpy(buffer, storageError.c_str(),255);
@@ -97,6 +102,7 @@ void analizeBuffer(){
                 }*/
             }
             returningAdress = placementAdress;
+
         }
         string variableName = jsonBuffer["name"];
         string variableType = jsonBuffer["type"];
@@ -117,10 +123,9 @@ void analizeBuffer(){
             error("ERROR writing to socket");
         }*/
    }
-
    readBuffer();
-
 }
+
 
 void readBuffer(){
     memset(buffer, 0, 255);
@@ -169,7 +174,7 @@ int main(int argc, char *argv[])
     /*
     memset(buffer, 0, 255);
 
-    n = read(newsockfd,buffer,255);
+    int n = read(newsockfd,buffer,255);
     if (n < 0) error("ERROR reading from socket");
     printf("Here is the message: %s\n",buffer);
 
@@ -178,9 +183,11 @@ int main(int argc, char *argv[])
     */
 
 
+
     startAdress = malloc(10000);
 
     readBuffer();
+
 
 
 
