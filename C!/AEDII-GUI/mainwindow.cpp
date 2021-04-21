@@ -219,6 +219,11 @@ void MainWindow::on_backButton_clicked() {
     connectToMServer(socketNum);
 
     ui->portWidget->hide();
+    ui->textEdit->setEnabled(true);
+    ui->pushButton->setEnabled(true);
+    ui->pushButton_2->setEnabled(true);
+    ui->deleteButton->setEnabled(true);
+    ui->nextButton->setEnabled(true);
 }
 
 void MainWindow::on_deleteButton_clicked()

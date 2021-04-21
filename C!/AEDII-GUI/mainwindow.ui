@@ -18,6 +18,9 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QTextEdit" name="textEdit">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -63,6 +66,9 @@
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_2">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>490</x>
@@ -93,6 +99,9 @@ font: 75 12pt &quot;Waree&quot;;</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -109,6 +118,9 @@ font: 75 12pt &quot;Waree&quot;;</string>
     </property>
    </widget>
    <widget class="QPushButton" name="deleteButton">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>490</x>
@@ -125,6 +137,9 @@ font: 75 12pt &quot;Waree&quot;;</string>
     </property>
    </widget>
    <widget class="QPushButton" name="nextButton">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>110</x>
