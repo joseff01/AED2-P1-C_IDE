@@ -18,6 +18,7 @@ using json = nlohmann::json;
 //Server Connection Glstdio::obal Variables:
 int sockfd;
 char buffer[255];
+void serverError(const char *msg);
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -26,7 +27,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 }
 
-MainWindow::~MainWindow() { delete ui; }
+MainWindow::~MainWindow() {
+    ::close(sockfd);
+    delete ui;
+}
 
 /*
 * QStringList identifyStatrt(QString):
@@ -35,7 +39,7 @@ MainWindow::~MainWindow() { delete ui; }
 */
 
 QStringList identifyStart(QString text)
-{ 
+{
     QString nameType;
     QString value;
     QString type;
@@ -134,8 +138,16 @@ void MainWindow::on_nextButton_clicked()
             j["size"] = "NULL";
         }
 
-        QString display = QString::fromStdString(j.dump());
-        ui->applicationLogTextEdit->setPlainText(display);
+        memset(buffer,0,255);
+        string jsonString = j.dump();
+        QString display = QString::fromStdString(jsonString);
+        ui->terminalTextEdit->append("\n"+display);
+        strncpy(buffer, jsonString.c_str(),255);
+        int n = write(sockfd,buffer,strlen(buffer));
+        if (n < 0){
+            serverError("ERROR writing to socket");
+        }
+
     } else {ui->applicationLogTextEdit->setPlainText("Execution Done");}
 }
 
@@ -188,6 +200,7 @@ void connectToMServer(int portno){
     if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) {
         serverError("ERROR connecting");
     }
+    /*
     std::cout << "Connection established." << std::endl;
     /*
     memset(buffer,0,255);
@@ -196,12 +209,7 @@ void connectToMServer(int portno){
     int n = write(sockfd,buffer,strlen(buffer));
     if (n < 0){
         serverError("ERROR writing to socket");
-    }
-
-    close(sockfd);
-    */
-
-
+    }*/
 }
 
 void MainWindow::on_backButton_clicked() {
