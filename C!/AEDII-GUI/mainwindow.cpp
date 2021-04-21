@@ -219,6 +219,7 @@ void connectToMServer(int portno){
     }
     /*
     std::cout << "Connection established." << std::endl;
+    /*
     memset(buffer,0,255);
     string testString = "The quick brown fox jumps over the lazy dog";
     strncpy(buffer, testString.c_str(),255);
@@ -235,6 +236,11 @@ void MainWindow::on_backButton_clicked() {
     connectToMServer(socketNum);
 
     ui->portWidget->hide();
+    ui->textEdit->setEnabled(true);
+    ui->pushButton->setEnabled(true);
+    ui->pushButton_2->setEnabled(true);
+    ui->deleteButton->setEnabled(true);
+    ui->nextButton->setEnabled(true);
 }
 
 void MainWindow::on_deleteButton_clicked()
