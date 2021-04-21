@@ -8,6 +8,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <json.hpp>
+#include <map>
+#include <sstream>
 
 using namespace std;
 using json = nlohmann::json;
@@ -20,6 +22,13 @@ void error(const char *msg)
 
 
 int baseSocketNumber = 5000;
+int sockfd, newsockfd;
+char buffer[255];
+void* startAdress;
+int mainOffset;
+map<string,int> nameToOffsetMap;
+map<string,string> nameToTypeMap;
+
 void bindingProcess(int* sockfd, int* portno, struct sockaddr_in* serv_addr){
 
     *portno = baseSocketNumber;
@@ -34,15 +43,70 @@ void bindingProcess(int* sockfd, int* portno, struct sockaddr_in* serv_addr){
         bindingProcess(sockfd, portno, serv_addr);
     }
 }
+void readBuffer();
+
+void analizeBuffer(){
+    if (buffer[0] == '{'){
+        json jsonBuffer = json::parse(buffer);
+        cout << jsonBuffer["name"] <<endl;
+        cout << jsonBuffer["size"] <<endl;
+        cout << jsonBuffer["type"] <<endl;
+        cout << jsonBuffer["value"] <<endl;
+        if (jsonBuffer["type"] == "int"){
+            char* modifiedVoidPointer = (char*)  startAdress+ mainOffset;
+            int* placementAdress = (int*) modifiedVoidPointer;
+            //cout << "1" <<endl;
+            string variableValue = jsonBuffer["value"];
+            //cout << "1.5" <<endl;
+            *placementAdress = atoi(variableValue.c_str());
+            //cout << "2" <<endl;
+            string variableName = jsonBuffer["name"];
+            //cout << "3" <<endl;
+            string variableType = jsonBuffer["type"];
+            //cout << "4" <<endl;
+            int offset = mainOffset;
+            //cout << "5" <<endl;
+            mainOffset = mainOffset + (int)jsonBuffer["size"];
+            //cout << "6" <<endl;
+            nameToOffsetMap.insert(pair<string, int>(variableName,offset));
+            nameToTypeMap.insert(pair<string, string>(variableName,variableType));
+            void* returningAdress = placementAdress;
+            std::stringstream ss;
+            ss << returningAdress;
+            string returningAdressString = ss.str();
+            cout << startAdress << endl;
+            cout << returningAdressString << endl;
+            cout << *placementAdress << endl;
+            /*
+            memset(buffer,0,255);
+            strncpy(buffer, returningAdressString.c_str(),255);
+            int n = write(sockfd,buffer,strlen(buffer));
+            if (n < 0){
+                error("ERROR writing to socket");
+            }*/
+
+        }
+   }
+   readBuffer();
+
+}
+
+void readBuffer(){
+    memset(buffer, 0, 255);
+    cout << "waiting for message..." << endl;
+    int n = read(newsockfd,buffer,255);
+    if (n < 0) error("ERROR reading from socket");
+    printf("Message received: %s\n",buffer);
+    analizeBuffer();
+}
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-    int sockfd, newsockfd, portno, n;
+    int portno;
     int option = 1;
     socklen_t clilen;
-    char buffer[255];
     struct sockaddr_in serv_addr, cli_addr;
 
     cout << "Opening Socket..." << endl;
@@ -71,6 +135,7 @@ int main(int argc, char *argv[])
 
     cout << "Connected to C! client" << endl;
 
+    /*
     memset(buffer, 0, 255);
 
     n = read(newsockfd,buffer,255);
@@ -79,13 +144,14 @@ int main(int argc, char *argv[])
 
     close(newsockfd);
     close(sockfd);
+    */
 
 
-    void* startAdress = malloc(10000);
+    startAdress = malloc(10000);
 
-    cout << startAdress << endl;
+    readBuffer();
 
-    free(startAdress);
+
 
 
 
