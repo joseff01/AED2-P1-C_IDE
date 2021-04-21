@@ -24,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    this->scopeNum = 0;
     ui->setupUi(this);
 }
 
@@ -38,14 +39,24 @@ MainWindow::~MainWindow() {
 * Returns a list with the identified type,name and value.
 */
 
-QStringList identifyStart(QString text)
+QStringList MainWindow::identifyStart(QString text)
 {
     QString nameType;
     QString value;
     QString type;
     QString name;
+    QString scope;
 
-    //Division por =
+    //Scope  definition
+    if(text.contains("{")){
+        this->setScopeNum(this->getScopeNum()+1);
+        text.remove("{");
+    } else if(text.contains("}")){
+        this->setScopeNum(this->getScopeNum()-1);
+        text.remove("}");
+    } scope = QString::fromStdString(std::to_string(this->getScopeNum()));
+
+    //Division by =
     if(text.contains("=",Qt::CaseSensitive)){
         QStringList equalSplit = text.split("=");
         nameType = equalSplit.at(0);
@@ -79,7 +90,7 @@ QStringList identifyStart(QString text)
     }
 
     QStringList package;
-    package << type << name << value;;
+    package << type << name << value << scope;;
     return package;
 
 }
@@ -107,6 +118,8 @@ void MainWindow::on_pushButton_clicked()
 }
 void MainWindow::setMainList(std::list<QStringList> newList){this->mainList = newList;}
 std::list<QStringList> MainWindow::getMainList(){ return this->mainList;}
+int MainWindow::getScopeNum(){return this->scopeNum;}
+void MainWindow::setScopeNum(int scopeNum){this->scopeNum = scopeNum;}
 
 void MainWindow::on_nextButton_clicked()
 {
@@ -121,6 +134,7 @@ void MainWindow::on_nextButton_clicked()
         j["type"] = type.toStdString();
         j["name"] = package.at(1).toStdString();
         j["value"] = package.at(2).toStdString();
+        j["scope"] = package.at(3).toStdString();
 
         if(type.contains("int",Qt::CaseSensitive)){
             j["size"] = 4;
@@ -152,10 +166,8 @@ void MainWindow::on_nextButton_clicked()
         if (n < 0){
             serverError("ERROR writing to socket");
         }*/
-
-    } else {ui->applicationLogTextEdit->setPlainText("Execution Done");}
+    }
 }
-
 void MainWindow::cout(string newText){
     QString textDisplay = QString::fromStdString(newText);
     textDisplay.insert(0,' ');

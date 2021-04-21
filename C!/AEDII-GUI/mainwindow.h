@@ -21,17 +21,20 @@ public:
 
     void setMainList(std::list<QStringList> newList);
     std::list<QStringList> getMainList();
+    int getScopeNum();
+    void setScopeNum(int scopeNum);
+    QStringList identifyStart(QString text);
 
 private slots:
     void on_pushButton_clicked();
     void on_nextButton_clicked();
     void on_backButton_clicked();
-
     void on_deleteButton_clicked();
 
 private:
     Ui::MainWindow *ui;
     std::list<QStringList> mainList;
+    int scopeNum;
     void cout(string newText);
     void ramView(string memory, string value, string name, string reference);
 };
