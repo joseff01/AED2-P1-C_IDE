@@ -8,6 +8,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <json.hpp>
+#include <map>
+#include <sstream>
 
 using namespace std;
 using json = nlohmann::json;
@@ -20,6 +22,13 @@ void error(const char *msg)
 
 
 int baseSocketNumber = 5000;
+int sockfd, newsockfd;
+char buffer[255];
+void* startAdress;
+int mainOffset = 0;
+map<string,int> nameToOffsetMap;
+map<string,string> nameToTypeMap;
+
 void bindingProcess(int* sockfd, int* portno, struct sockaddr_in* serv_addr){
 
     *portno = baseSocketNumber;
@@ -34,15 +43,106 @@ void bindingProcess(int* sockfd, int* portno, struct sockaddr_in* serv_addr){
         bindingProcess(sockfd, portno, serv_addr);
     }
 }
+void readBuffer();
+
+void analizeBuffer(){
+    if (buffer[0] == '{'){
+        void* returningAdress;
+        json jsonBuffer = json::parse(buffer);
+        if (jsonBuffer["type"] == "int"){
+            char* modifiedVoidPointer = (char*)  startAdress + mainOffset;
+            int* placementAdress = (int*) modifiedVoidPointer;
+            string variableValue = jsonBuffer["value"];
+            try {
+                long double ld;
+                if ((std::istringstream(variableValue) >> ld >> std::ws).eof()){
+                    *placementAdress = atoi(variableValue.c_str());
+                }else{
+                    throw variableValue;
+                }
+            }  catch (string variableValue){
+                string storageError ="ERROR: " + variableValue + " is not a valid int.";
+                cout << storageError << endl;
+                /*
+                memset(buffer,0,255);
+                strncpy(buffer, storageError.c_str(),255);
+                int n = write(sockfd,buffer,strlen(buffer));
+                if (n < 0){
+                    error("ERROR writing to socket");
+                }*/
+            }
+            returningAdress = placementAdress;
+        }if (jsonBuffer["type"] == "float"){
+            char* modifiedVoidPointer = (char*)  startAdress + mainOffset;
+            float* placementAdress = (float*) modifiedVoidPointer;
+            string variableValue = jsonBuffer["value"];
+            try {
+                long double ld;
+                if (variableValue.back() == 'f'){
+                    variableValue.pop_back();
+                    if ((std::istringstream(variableValue) >> ld >> std::ws).eof()){
+                        *placementAdress = stof(variableValue);
+                    }else{
+                        throw variableValue;
+                    }
+                }
+                if ((std::istringstream(variableValue) >> ld >> std::ws).eof()){
+                    *placementAdress = stof(variableValue);
+                }else{
+                    throw variableValue;
+                }
+            }  catch (string variableValue){
+                string storageError ="ERROR: " + variableValue + " is not a valid float.";
+                /*
+                memset(buffer,0,255);
+                strncpy(buffer, storageError.c_str(),255);
+                int n = write(sockfd,buffer,strlen(buffer));
+                if (n < 0){
+                    error("ERROR writing to socket");
+                }*/
+            }
+            returningAdress = placementAdress;
+
+        }
+        string variableName = jsonBuffer["name"];
+        string variableType = jsonBuffer["type"];
+        int offset = mainOffset;
+        mainOffset = mainOffset + (int)jsonBuffer["size"];
+        nameToOffsetMap.insert(pair<string, int>(variableName,offset));
+        nameToTypeMap.insert(pair<string, string>(variableName,variableType));
+        std::stringstream ss;
+        ss << returningAdress;
+        string returningAdressString = ss.str();
+        jsonBuffer["adress"] = returningAdressString;
+        string sendJson = jsonBuffer.dump();
+        /*
+        memset(buffer,0,255);
+        strncpy(buffer, sendJson.c_str(),255);
+        int n = write(sockfd,buffer,strlen(buffer));
+        if (n < 0){
+            error("ERROR writing to socket");
+        }*/
+   }
+   readBuffer();
+}
+
+
+void readBuffer(){
+    memset(buffer, 0, 255);
+    cout << "waiting for message..." << endl;
+    int n = read(newsockfd,buffer,255);
+    if (n < 0) error("ERROR reading from socket");
+    printf("Message received: %s\n",buffer);
+    analizeBuffer();
+}
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-    int sockfd, newsockfd, portno, n;
+    int portno;
     int option = 1;
     socklen_t clilen;
-    char buffer[255];
     struct sockaddr_in serv_addr, cli_addr;
 
     cout << "Opening Socket..." << endl;
@@ -71,21 +171,25 @@ int main(int argc, char *argv[])
 
     cout << "Connected to C! client" << endl;
 
+    /*
     memset(buffer, 0, 255);
 
-    n = read(newsockfd,buffer,255);
+    int n = read(newsockfd,buffer,255);
     if (n < 0) error("ERROR reading from socket");
     printf("Here is the message: %s\n",buffer);
 
     close(newsockfd);
     close(sockfd);
+    */
 
 
-    void* startAdress = malloc(10000);
 
-    cout << startAdress << endl;
+    startAdress = malloc(10000);
 
-    free(startAdress);
+    readBuffer();
+
+
+
 
 
 

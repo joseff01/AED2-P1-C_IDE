@@ -212,6 +212,7 @@ DIST          = /home/parallels/Qt/5.15.2/gcc_64/mkspecs/features/spec_pre.prf \
 		/home/parallels/Qt/5.15.2/gcc_64/mkspecs/features/qt_config.prf \
 		/home/parallels/Qt/5.15.2/gcc_64/mkspecs/linux-g++/qmake.conf \
 		/home/parallels/Qt/5.15.2/gcc_64/mkspecs/features/spec_post.prf \
+		../.qmake.stash \
 		/home/parallels/Qt/5.15.2/gcc_64/mkspecs/features/exclusive_builds.prf \
 		/home/parallels/Qt/5.15.2/gcc_64/mkspecs/features/toolchain.prf \
 		/home/parallels/Qt/5.15.2/gcc_64/mkspecs/features/default_pre.prf \
@@ -400,6 +401,7 @@ Makefile: ../mserver.pro /home/parallels/Qt/5.15.2/gcc_64/mkspecs/linux-g++/qmak
 		/home/parallels/Qt/5.15.2/gcc_64/mkspecs/features/qt_config.prf \
 		/home/parallels/Qt/5.15.2/gcc_64/mkspecs/linux-g++/qmake.conf \
 		/home/parallels/Qt/5.15.2/gcc_64/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		/home/parallels/Qt/5.15.2/gcc_64/mkspecs/features/exclusive_builds.prf \
 		/home/parallels/Qt/5.15.2/gcc_64/mkspecs/features/toolchain.prf \
 		/home/parallels/Qt/5.15.2/gcc_64/mkspecs/features/default_pre.prf \
@@ -576,6 +578,7 @@ Makefile: ../mserver.pro /home/parallels/Qt/5.15.2/gcc_64/mkspecs/linux-g++/qmak
 /home/parallels/Qt/5.15.2/gcc_64/mkspecs/features/qt_config.prf:
 /home/parallels/Qt/5.15.2/gcc_64/mkspecs/linux-g++/qmake.conf:
 /home/parallels/Qt/5.15.2/gcc_64/mkspecs/features/spec_post.prf:
+.qmake.stash:
 /home/parallels/Qt/5.15.2/gcc_64/mkspecs/features/exclusive_builds.prf:
 /home/parallels/Qt/5.15.2/gcc_64/mkspecs/features/toolchain.prf:
 /home/parallels/Qt/5.15.2/gcc_64/mkspecs/features/default_pre.prf:
