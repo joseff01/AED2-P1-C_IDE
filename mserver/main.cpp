@@ -25,7 +25,7 @@ int baseSocketNumber = 5000;
 int sockfd, newsockfd;
 char buffer[255];
 void* startAdress;
-int mainOffset;
+int mainOffset = 0;
 map<string,int> nameToOffsetMap;
 map<string,string> nameToTypeMap;
 
@@ -47,46 +47,77 @@ void readBuffer();
 
 void analizeBuffer(){
     if (buffer[0] == '{'){
+        void* returningAdress;
         json jsonBuffer = json::parse(buffer);
-        cout << jsonBuffer["name"] <<endl;
-        cout << jsonBuffer["size"] <<endl;
-        cout << jsonBuffer["type"] <<endl;
-        cout << jsonBuffer["value"] <<endl;
         if (jsonBuffer["type"] == "int"){
-            char* modifiedVoidPointer = (char*)  startAdress+ mainOffset;
+            char* modifiedVoidPointer = (char*)  startAdress + mainOffset;
             int* placementAdress = (int*) modifiedVoidPointer;
-            //cout << "1" <<endl;
             string variableValue = jsonBuffer["value"];
-            //cout << "1.5" <<endl;
-            *placementAdress = atoi(variableValue.c_str());
-            //cout << "2" <<endl;
-            string variableName = jsonBuffer["name"];
-            //cout << "3" <<endl;
-            string variableType = jsonBuffer["type"];
-            //cout << "4" <<endl;
-            int offset = mainOffset;
-            //cout << "5" <<endl;
-            mainOffset = mainOffset + (int)jsonBuffer["size"];
-            //cout << "6" <<endl;
-            nameToOffsetMap.insert(pair<string, int>(variableName,offset));
-            nameToTypeMap.insert(pair<string, string>(variableName,variableType));
-            void* returningAdress = placementAdress;
-            std::stringstream ss;
-            ss << returningAdress;
-            string returningAdressString = ss.str();
-            cout << startAdress << endl;
-            cout << returningAdressString << endl;
-            cout << *placementAdress << endl;
-            /*
-            memset(buffer,0,255);
-            strncpy(buffer, returningAdressString.c_str(),255);
-            int n = write(sockfd,buffer,strlen(buffer));
-            if (n < 0){
-                error("ERROR writing to socket");
-            }*/
-
+            try {
+                long double ld;
+                float i = 12.5265426542652462546245;
+                if ((std::istringstream(variableValue) >> ld >> std::ws).eof()){
+                    *placementAdress = atoi(variableValue.c_str());
+                }else{
+                    throw variableValue;
+                }
+            }  catch (string variableValue){
+                string storageError ="ERROR: " + variableValue + " is not a valid int.";
+                cout << storageError << endl;
+                /*
+                memset(buffer,0,255);
+                strncpy(buffer, storageError.c_str(),255);
+                int n = write(sockfd,buffer,strlen(buffer));
+                if (n < 0){
+                    error("ERROR writing to socket");
+                }*/
+            }
+            returningAdress = placementAdress;
+        }if (jsonBuffer["type"] == "int"){
+            char* modifiedVoidPointer = (char*)  startAdress + mainOffset;
+            int* placementAdress = (int*) modifiedVoidPointer;
+            string variableValue = jsonBuffer["value"];
+            try {
+                long double ld;
+                float i = 12.5265426542652462546245;
+                if ((std::istringstream(variableValue) >> ld >> std::ws).eof()){
+                    *placementAdress = atoi(variableValue.c_str());
+                }else{
+                    throw variableValue;
+                }
+            }  catch (string variableValue){
+                string storageError ="ERROR: " + variableValue + " is not a valid int.";
+                cout << storageError << endl;
+                /*
+                memset(buffer,0,255);
+                strncpy(buffer, storageError.c_str(),255);
+                int n = write(sockfd,buffer,strlen(buffer));
+                if (n < 0){
+                    error("ERROR writing to socket");
+                }*/
+            }
+            returningAdress = placementAdress;
         }
+        string variableName = jsonBuffer["name"];
+        string variableType = jsonBuffer["type"];
+        int offset = mainOffset;
+        mainOffset = mainOffset + (int)jsonBuffer["size"];
+        nameToOffsetMap.insert(pair<string, int>(variableName,offset));
+        nameToTypeMap.insert(pair<string, string>(variableName,variableType));
+        std::stringstream ss;
+        ss << returningAdress;
+        string returningAdressString = ss.str();
+        jsonBuffer["adress"] = returningAdressString;
+        string sendJson = jsonBuffer.dump();
+        /*
+        memset(buffer,0,255);
+        strncpy(buffer, sendJson.c_str(),255);
+        int n = write(sockfd,buffer,strlen(buffer));
+        if (n < 0){
+            error("ERROR writing to socket");
+        }*/
    }
+
    readBuffer();
 
 }
