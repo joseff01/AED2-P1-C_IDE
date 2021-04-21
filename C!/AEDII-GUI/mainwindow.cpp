@@ -138,6 +138,11 @@ void MainWindow::on_nextButton_clicked()
             j["size"] = "NULL";
         }
 
+        string jsonString = j.dump();
+        QString display = QString::fromStdString(jsonString);
+        ui->terminalTextEdit->append("\n"+display);
+
+        /*
         memset(buffer,0,255);
         string jsonString = j.dump();
         QString display = QString::fromStdString(jsonString);
@@ -146,7 +151,7 @@ void MainWindow::on_nextButton_clicked()
         int n = write(sockfd,buffer,strlen(buffer));
         if (n < 0){
             serverError("ERROR writing to socket");
-        }
+        }*/
 
     } else {ui->applicationLogTextEdit->setPlainText("Execution Done");}
 }
