@@ -153,22 +153,16 @@ void MainWindow::on_nextButton_clicked()
         }
 
         if(j.at("name") != ""){
+            memset(buffer,0,255);
             string jsonString = j.dump();
             QString display = QString::fromStdString(jsonString);
             ui->terminalTextEdit->append("\n"+display);
+            strncpy(buffer, jsonString.c_str(),255);
+            int n = write(sockfd,buffer,strlen(buffer));
+            if (n < 0){
+                serverError("ERROR writing to socket");
+            }
         }
-
-
-        memset(buffer,0,255);
-        string jsonString = j.dump();
-        QString display = QString::fromStdString(jsonString);
-        ui->terminalTextEdit->append("\n"+display);
-        strncpy(buffer, jsonString.c_str(),255);
-        int n = write(sockfd,buffer,strlen(buffer));
-        if (n < 0){
-            serverError("ERROR writing to socket");
-        }
-
     }
 }
 void MainWindow::cout(string newText){

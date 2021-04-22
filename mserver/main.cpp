@@ -103,6 +103,58 @@ void analizeBuffer(){
             }
             returningAdress = placementAdress;
 
+        } if (jsonBuffer["type"] == "long"){
+            char* modifiedVoidPointer = (char*)  startAdress + mainOffset;
+            long* placementAdress = (long*) modifiedVoidPointer;
+            string variableValue = jsonBuffer["value"];
+            try {
+                long double ld;
+                if ((std::istringstream(variableValue) >> ld >> std::ws).eof()){
+                    *placementAdress = stol(variableValue);
+                }else{
+                    throw variableValue;
+                }
+            }  catch (string variableValue){
+                string storageError ="ERROR: " + variableValue + " is not a valid long.";
+                cout << storageError << endl;
+                /*
+                memset(buffer,0,255);
+                strncpy(buffer, storageError.c_str(),255);
+                int n = write(sockfd,buffer,strlen(buffer));
+                if (n < 0){
+                    error("ERROR writing to socket");
+                }*/
+            }
+            returningAdress = placementAdress;
+
+        } if (jsonBuffer["type"] == "char"){
+            char* modifiedVoidPointer = (char*)  startAdress + mainOffset;
+            char* placementAdress = modifiedVoidPointer;
+            string variableValue = jsonBuffer["value"];
+            try {
+                if (variableValue.length() == 3 && variableValue.front() == '\''
+                        && variableValue.back() == '\''){
+                    variableValue.erase(0,1);variableValue.pop_back();
+                    variableValue.erase(0,1);
+                    char tempArray[1];
+                    strcpy(tempArray,variableValue.c_str());
+                    placementAdress = tempArray;
+                }else{
+                    throw variableValue;
+                }
+            }  catch (string variableValue){
+                string storageError ="ERROR: " + variableValue + " is not a valid char.";
+                cout << storageError << endl;
+                /*
+                memset(buffer,0,255);
+                strncpy(buffer, storageError.c_str(),255);
+                int n = write(sockfd,buffer,strlen(buffer));
+                if (n < 0){
+                    error("ERROR writing to socket");
+                }*/
+            }
+            returningAdress = placementAdress;
+
         }
         string variableName = jsonBuffer["name"];
         string variableType = jsonBuffer["type"];
