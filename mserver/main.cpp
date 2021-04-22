@@ -10,6 +10,7 @@
 #include <json.hpp>
 #include <map>
 #include <sstream>
+#include <iomanip>
 
 using namespace std;
 using json = nlohmann::json;
@@ -19,7 +20,6 @@ void error(const char *msg)
     perror(msg);
     exit(1);
 }
-
 
 int baseSocketNumber = 5000;
 int sockfd, newsockfd;
@@ -82,6 +82,21 @@ void analizeBuffer(){
                     if (n < 0){
                         error("ERROR writing to socket");
                     }*/
+                    readBuffer();
+                    return;
+                } catch( exception error ) {
+                    string strChar(error.what());
+                    string storageError = "ERROR: " + strChar;
+                    cout << storageError << endl;
+                    /*
+                    memset(buffer,0,255);
+                    strncpy(buffer, storageError.c_str(),255);
+                    int n = write(newsockfd,buffer,strlen(buffer));
+                    if (n < 0){
+                        error("ERROR writing to socket");
+                    }*/
+                    readBuffer();
+                    return;
                 }
                 returningAdress = placementAdress;
                 int i = *placementAdress;
@@ -120,11 +135,27 @@ void analizeBuffer(){
                     if (n < 0){
                         error("ERROR writing to socket");
                     }*/
+                    readBuffer();
+                    return;
+                } catch( exception error ) {
+                    string strChar(error.what());
+                    string storageError = "ERROR: " + strChar;
+                    cout << storageError << endl;
+                    /*
+                    memset(buffer,0,255);
+                    strncpy(buffer, storageError.c_str(),255);
+                    int n = write(newsockfd,buffer,strlen(buffer));
+                    if (n < 0){
+                        error("ERROR writing to socket");
+                    }*/
+                    readBuffer();
+                    return;
                 }
                 returningAdress = placementAdress;
                 float f = *placementAdress;
                 string sFloat = to_string(f);
                 jsonBuffer["value"] = sFloat;
+                cout << jsonBuffer["value"] << endl;
                 cout << f << endl;
             }else{
                 returningAdress = placementAdress;
@@ -158,11 +189,28 @@ void analizeBuffer(){
                     if (n < 0){
                         error("ERROR writing to socket");
                     }*/
+                    readBuffer();
+                    return;
+                } catch( exception error ) {
+                    string strChar(error.what());
+                    string storageError = "ERROR: " + strChar;
+                    cout << storageError << endl;
+                    /*
+                    memset(buffer,0,255);
+                    strncpy(buffer, storageError.c_str(),255);
+                    int n = write(newsockfd,buffer,strlen(buffer));
+                    if (n < 0){
+                        error("ERROR writing to socket");
+                    }*/
+                    readBuffer();
+                    return;
                 }
                 returningAdress = placementAdress;
                 double d = *placementAdress;
-                string sDouble = to_string(d);
-                jsonBuffer["value"] = sDouble;
+                stringstream ss;
+                ss << setprecision(15) << d;
+                ss >> jsonBuffer["value"];
+                cout << jsonBuffer["value"] << endl;
                 cout << d << endl;
             }else{
                 returningAdress = placementAdress;
@@ -189,6 +237,21 @@ void analizeBuffer(){
                     if (n < 0){
                         error("ERROR writing to socket");
                     }*/
+                    readBuffer();
+                    return;
+                } catch( exception error ) {
+                    string strChar(error.what());
+                    string storageError = "ERROR: " + strChar;
+                    cout << storageError << endl;
+                    /*
+                    memset(buffer,0,255);
+                    strncpy(buffer, storageError.c_str(),255);
+                    int n = write(newsockfd,buffer,strlen(buffer));
+                    if (n < 0){
+                        error("ERROR writing to socket");
+                    }*/
+                    readBuffer();
+                    return;
                 }
                 returningAdress = placementAdress;
                 long l = *placementAdress;
@@ -219,6 +282,21 @@ void analizeBuffer(){
                     if (n < 0){
                         error("ERROR writing to socket");
                     }*/
+                    readBuffer();
+                    return;
+                } catch( exception error ) {
+                    string strChar(error.what());
+                    string storageError = "ERROR: " + strChar;
+                    cout << storageError << endl;
+                    /*
+                    memset(buffer,0,255);
+                    strncpy(buffer, storageError.c_str(),255);
+                    int n = write(newsockfd,buffer,strlen(buffer));
+                    if (n < 0){
+                        error("ERROR writing to socket");
+                    }*/
+                    readBuffer();
+                    return;
                 }
                 returningAdress = placementAdress;
                 char c = *placementAdress;
