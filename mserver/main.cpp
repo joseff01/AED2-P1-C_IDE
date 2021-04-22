@@ -45,15 +45,48 @@ void bindingProcess(int* sockfd, int* portno, struct sockaddr_in* serv_addr){
 }
 void readBuffer();
 
+string getVariableValue(string s);
+
+double checkNumericalValueOfExpression(string stringExpression){
+    int length = stringExpression.size();
+    for (int i = 0; i < length; i++){
+        x+2.65/87*y
+    }
+}
+
 void analizeBuffer(){
     if (buffer[0] == '{'){
         void* returningAdress;
         json jsonBuffer = json::parse(buffer);
         bool declarationFlag = false;
+
         if (jsonBuffer["value"] == "NULL"){
             declarationFlag = true;
         }
-        if (jsonBuffer["type"] == "int"){
+
+        if (jsonBuffer["type"] == "NULL"){
+            if(nameToOffsetMap.count(jsonBuffer["name"]) > 0){
+                if (jsonBuffer["type"] == "char"){
+
+                }else{
+                    double valueToAssign = checkNumericalValueOfExpression(jsonBuffer["value"]);
+                    void* variableAdress = ;
+                }
+            }else{
+                string storageError ="ERROR: Variable " + (string)jsonBuffer["name"] + " has not been declared yet";
+                cout << storageError << endl;
+                /*
+                memset(buffer,0,255);
+                strncpy(buffer, storageError.c_str(),255);
+                int n = write(sockfd,buffer,strlen(buffer));
+                if (n < 0){
+                    error("ERROR writing to socket");
+                }*/
+                readBuffer();
+                return;
+            }
+
+        }else if (jsonBuffer["type"] == "int"){
             char* modifiedVoidPointer = (char*)  startAdress + mainOffset;
             int* placementAdress = (int*) modifiedVoidPointer;
             if(declarationFlag == false){
@@ -317,6 +350,7 @@ void analizeBuffer(){
         ss << returningAdress;
         string returningAdressString = ss.str();
         jsonBuffer["adress"] = returningAdressString;
+        jsonBuffer["referenceCounter"] = "1";
         string sendJson = jsonBuffer.dump();
         cout << startAdress << endl;
         cout << returningAdress << endl;
