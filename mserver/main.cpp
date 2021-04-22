@@ -49,151 +49,185 @@ void analizeBuffer(){
     if (buffer[0] == '{'){
         void* returningAdress;
         json jsonBuffer = json::parse(buffer);
+        bool declarationFlag = false;
+        if (jsonBuffer["value"] == "NULL"){
+            declarationFlag = true;
+        }
         if (jsonBuffer["type"] == "int"){
             char* modifiedVoidPointer = (char*)  startAdress + mainOffset;
             int* placementAdress = (int*) modifiedVoidPointer;
-            string variableValue = jsonBuffer["value"];
-            try {
-                long double ld;
-                if (variableValue.back() == 'f'){
-                    variableValue.pop_back();
-                    if ((std::istringstream(variableValue) >> ld >> std::ws).eof()){
-                        *placementAdress = atoi(variableValue.c_str());
+            if(declarationFlag == false){
+                string variableValue = jsonBuffer["value"];
+                try {
+                    long double ld;
+                    if (variableValue.back() == 'f'){
+                        variableValue.pop_back();
+                        if ((std::istringstream(variableValue) >> ld >> std::ws).eof()){
+                            *placementAdress = stoi(variableValue);
+                        }else{
+                            throw variableValue;
+                        }
+                    }if ((std::istringstream(variableValue) >> ld >> std::ws).eof()){
+                        *placementAdress = stoi(variableValue);
                     }else{
                         throw variableValue;
                     }
-                }if ((std::istringstream(variableValue) >> ld >> std::ws).eof()){
-                    *placementAdress = atoi(variableValue.c_str());
-                }else{
-                    throw variableValue;
+                }  catch (string variableValue){
+                    string storageError ="ERROR: " + variableValue + " is not a valid int.";
+                    cout << storageError << endl;
+                    /*
+                    memset(buffer,0,255);
+                    strncpy(buffer, storageError.c_str(),255);
+                    int n = write(sockfd,buffer,strlen(buffer));
+                    if (n < 0){
+                        error("ERROR writing to socket");
+                    }*/
                 }
-            }  catch (string variableValue){
-                string storageError ="ERROR: " + variableValue + " is not a valid int.";
-                cout << storageError << endl;
-                /*
-                memset(buffer,0,255);
-                strncpy(buffer, storageError.c_str(),255);
-                int n = write(sockfd,buffer,strlen(buffer));
-                if (n < 0){
-                    error("ERROR writing to socket");
-                }*/
+                returningAdress = placementAdress;
+                int i = *placementAdress;
+                string sInt = to_string(i);
+                jsonBuffer["value"] = sInt;
+                cout << i << endl;
+            } else {
+                returningAdress = placementAdress;
             }
-            returningAdress = placementAdress;
-            int i = *placementAdress;
-            cout << i << endl;
-        }if (jsonBuffer["type"] == "float"){
+        }else if (jsonBuffer["type"] == "float"){
             char* modifiedVoidPointer = (char*)  startAdress + mainOffset;
             float* placementAdress = (float*) modifiedVoidPointer;
             string variableValue = jsonBuffer["value"];
-            try {
-                long double ld;
-                if (variableValue.back() == 'f'){
-                    variableValue.pop_back();
+            if(declarationFlag == false){
+                try {
+                    long double ld;
+                    if (variableValue.back() == 'f'){
+                        variableValue.pop_back();
+                        if ((std::istringstream(variableValue) >> ld >> std::ws).eof()){
+                            *placementAdress = stof(variableValue);
+                        }else{
+                            throw variableValue;
+                        }
+                    }
                     if ((std::istringstream(variableValue) >> ld >> std::ws).eof()){
                         *placementAdress = stof(variableValue);
                     }else{
                         throw variableValue;
                     }
+                }  catch (string variableValue){
+                    string storageError ="ERROR: " + variableValue + " is not a valid float.";
+                    /*
+                    memset(buffer,0,255);
+                    strncpy(buffer, storageError.c_str(),255);
+                    int n = write(sockfd,buffer,strlen(buffer));
+                    if (n < 0){
+                        error("ERROR writing to socket");
+                    }*/
                 }
-                if ((std::istringstream(variableValue) >> ld >> std::ws).eof()){
-                    *placementAdress = stof(variableValue);
-                }else{
-                    throw variableValue;
-                }
-            }  catch (string variableValue){
-                string storageError ="ERROR: " + variableValue + " is not a valid float.";
-                /*
-                memset(buffer,0,255);
-                strncpy(buffer, storageError.c_str(),255);
-                int n = write(sockfd,buffer,strlen(buffer));
-                if (n < 0){
-                    error("ERROR writing to socket");
-                }*/
+                returningAdress = placementAdress;
+                float f = *placementAdress;
+                string sFloat = to_string(f);
+                jsonBuffer["value"] = sFloat;
+                cout << f << endl;
+            }else{
+                returningAdress = placementAdress;
             }
-            returningAdress = placementAdress;
-            float f = *placementAdress;
-            cout << f << endl;
-        }if (jsonBuffer["type"] == "double"){
+        }else if (jsonBuffer["type"] == "double"){
             char* modifiedVoidPointer = (char*)  startAdress + mainOffset;
             double* placementAdress = (double*) modifiedVoidPointer;
             string variableValue = jsonBuffer["value"];
-            try {
-                long double ld;
-                if (variableValue.back() == 'f'){
-                    variableValue.pop_back();
+            if(declarationFlag == false){
+                try {
+                    long double ld;
+                    if (variableValue.back() == 'f'){
+                        variableValue.pop_back();
+                        if ((std::istringstream(variableValue) >> ld >> std::ws).eof()){
+                            *placementAdress = stod(variableValue);
+                        }else{
+                            throw variableValue;
+                        }
+                    }
                     if ((std::istringstream(variableValue) >> ld >> std::ws).eof()){
                         *placementAdress = stod(variableValue);
                     }else{
                         throw variableValue;
                     }
+                }  catch (string variableValue){
+                    string storageError ="ERROR: " + variableValue + " is not a valid float.";
+                    /*
+                    memset(buffer,0,255);
+                    strncpy(buffer, storageError.c_str(),255);
+                    int n = write(sockfd,buffer,strlen(buffer));
+                    if (n < 0){
+                        error("ERROR writing to socket");
+                    }*/
                 }
-                if ((std::istringstream(variableValue) >> ld >> std::ws).eof()){
-                    *placementAdress = stod(variableValue);
-                }else{
-                    throw variableValue;
-                }
-            }  catch (string variableValue){
-                string storageError ="ERROR: " + variableValue + " is not a valid float.";
-                /*
-                memset(buffer,0,255);
-                strncpy(buffer, storageError.c_str(),255);
-                int n = write(sockfd,buffer,strlen(buffer));
-                if (n < 0){
-                    error("ERROR writing to socket");
-                }*/
+                returningAdress = placementAdress;
+                double d = *placementAdress;
+                string sDouble = to_string(d);
+                jsonBuffer["value"] = sDouble;
+                cout << d << endl;
+            }else{
+                returningAdress = placementAdress;
             }
-            returningAdress = placementAdress;
-            double d = *placementAdress;
-            cout << d << endl;
-        } if (jsonBuffer["type"] == "long"){
+        } else if (jsonBuffer["type"] == "long"){
             char* modifiedVoidPointer = (char*)  startAdress + mainOffset;
             long* placementAdress = (long*) modifiedVoidPointer;
             string variableValue = jsonBuffer["value"];
-            try {
-                long double ld;
-                if ((std::istringstream(variableValue) >> ld >> std::ws).eof()){
-                    *placementAdress = stol(variableValue);
-                }else{
-                    throw variableValue;
+            if(declarationFlag == false){
+                try {
+                    long double ld;
+                    if ((std::istringstream(variableValue) >> ld >> std::ws).eof()){
+                        *placementAdress = stol(variableValue);
+                    }else{
+                        throw variableValue;
+                    }
+                }  catch (string variableValue){
+                    string storageError ="ERROR: " + variableValue + " is not a valid long.";
+                    cout << storageError << endl;
+                    /*
+                    memset(buffer,0,255);
+                    strncpy(buffer, storageError.c_str(),255);
+                    int n = write(sockfd,buffer,strlen(buffer));
+                    if (n < 0){
+                        error("ERROR writing to socket");
+                    }*/
                 }
-            }  catch (string variableValue){
-                string storageError ="ERROR: " + variableValue + " is not a valid long.";
-                cout << storageError << endl;
-                /*
-                memset(buffer,0,255);
-                strncpy(buffer, storageError.c_str(),255);
-                int n = write(sockfd,buffer,strlen(buffer));
-                if (n < 0){
-                    error("ERROR writing to socket");
-                }*/
+                returningAdress = placementAdress;
+                long l = *placementAdress;
+                string sLong = to_string(l);
+                jsonBuffer["value"] = sLong;
+                cout << l << endl;
+            }else{
+                returningAdress = placementAdress;
             }
-            returningAdress = placementAdress;
-            long l = *placementAdress;
-            cout << l << endl;
-        } if (jsonBuffer["type"] == "char"){
+        } else if (jsonBuffer["type"] == "char"){
             char* modifiedVoidPointer = (char*)  startAdress + mainOffset;
             char* placementAdress = modifiedVoidPointer;
             string variableValue = jsonBuffer["value"];
-            try {
-                if (variableValue.length() == 3 && variableValue.front() == '\'' && variableValue.back() == '\''){
-                    *placementAdress = variableValue[1];
-                }else{
-                    throw variableValue;
+            if(declarationFlag == false){
+                try {
+                    if (variableValue.length() == 3 && variableValue.front() == '\'' && variableValue.back() == '\''){
+                        *placementAdress = variableValue[1];
+                    }else{
+                        throw variableValue;
+                    }
+                }  catch (string variableValue){
+                    string storageError ="ERROR: " + variableValue + " is not a valid char.";
+                    cout << storageError << endl;
+                    /*
+                    memset(buffer,0,255);
+                    strncpy(buffer, storageError.c_str(),255);
+                    int n = write(sockfd,buffer,strlen(buffer));
+                    if (n < 0){
+                        error("ERROR writing to socket");
+                    }*/
                 }
-            }  catch (string variableValue){
-                string storageError ="ERROR: " + variableValue + " is not a valid char.";
-                cout << storageError << endl;
-                /*
-                memset(buffer,0,255);
-                strncpy(buffer, storageError.c_str(),255);
-                int n = write(sockfd,buffer,strlen(buffer));
-                if (n < 0){
-                    error("ERROR writing to socket");
-                }*/
+                returningAdress = placementAdress;
+                char c = *placementAdress;
+                string sChar = to_string(c);
+                jsonBuffer["value"] = sChar;
+                cout << c << endl;
+            }else{
+                returningAdress = placementAdress;
             }
-            returningAdress = placementAdress;
-            char c = *placementAdress;
-            cout << c << endl;
         }
         string variableName = jsonBuffer["name"];
         string variableType = jsonBuffer["type"];
