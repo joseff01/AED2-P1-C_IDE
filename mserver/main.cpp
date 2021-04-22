@@ -55,7 +55,14 @@ void analizeBuffer(){
             string variableValue = jsonBuffer["value"];
             try {
                 long double ld;
-                if ((std::istringstream(variableValue) >> ld >> std::ws).eof()){
+                if (variableValue.back() == 'f'){
+                    variableValue.pop_back();
+                    if ((std::istringstream(variableValue) >> ld >> std::ws).eof()){
+                        *placementAdress = atoi(variableValue.c_str());
+                    }else{
+                        throw variableValue;
+                    }
+                }if ((std::istringstream(variableValue) >> ld >> std::ws).eof()){
                     *placementAdress = atoi(variableValue.c_str());
                 }else{
                     throw variableValue;
@@ -72,6 +79,8 @@ void analizeBuffer(){
                 }*/
             }
             returningAdress = placementAdress;
+            int i = *placementAdress;
+            cout << i << endl;
         }if (jsonBuffer["type"] == "float"){
             char* modifiedVoidPointer = (char*)  startAdress + mainOffset;
             float* placementAdress = (float*) modifiedVoidPointer;
@@ -102,7 +111,40 @@ void analizeBuffer(){
                 }*/
             }
             returningAdress = placementAdress;
-
+            float f = *placementAdress;
+            cout << f << endl;
+        }if (jsonBuffer["type"] == "double"){
+            char* modifiedVoidPointer = (char*)  startAdress + mainOffset;
+            double* placementAdress = (double*) modifiedVoidPointer;
+            string variableValue = jsonBuffer["value"];
+            try {
+                long double ld;
+                if (variableValue.back() == 'f'){
+                    variableValue.pop_back();
+                    if ((std::istringstream(variableValue) >> ld >> std::ws).eof()){
+                        *placementAdress = stod(variableValue);
+                    }else{
+                        throw variableValue;
+                    }
+                }
+                if ((std::istringstream(variableValue) >> ld >> std::ws).eof()){
+                    *placementAdress = stod(variableValue);
+                }else{
+                    throw variableValue;
+                }
+            }  catch (string variableValue){
+                string storageError ="ERROR: " + variableValue + " is not a valid float.";
+                /*
+                memset(buffer,0,255);
+                strncpy(buffer, storageError.c_str(),255);
+                int n = write(sockfd,buffer,strlen(buffer));
+                if (n < 0){
+                    error("ERROR writing to socket");
+                }*/
+            }
+            returningAdress = placementAdress;
+            double d = *placementAdress;
+            cout << d << endl;
         } if (jsonBuffer["type"] == "long"){
             char* modifiedVoidPointer = (char*)  startAdress + mainOffset;
             long* placementAdress = (long*) modifiedVoidPointer;
@@ -126,19 +168,15 @@ void analizeBuffer(){
                 }*/
             }
             returningAdress = placementAdress;
-
+            long l = *placementAdress;
+            cout << l << endl;
         } if (jsonBuffer["type"] == "char"){
             char* modifiedVoidPointer = (char*)  startAdress + mainOffset;
             char* placementAdress = modifiedVoidPointer;
             string variableValue = jsonBuffer["value"];
             try {
-                if (variableValue.length() == 3 && variableValue.front() == '\''
-                        && variableValue.back() == '\''){
-                    variableValue.erase(0,1);variableValue.pop_back();
-                    variableValue.erase(0,1);
-                    char tempArray[1];
-                    strcpy(tempArray,variableValue.c_str());
-                    placementAdress = tempArray;
+                if (variableValue.length() == 3 && variableValue.front() == '\'' && variableValue.back() == '\''){
+                    *placementAdress = variableValue[1];
                 }else{
                     throw variableValue;
                 }
@@ -154,7 +192,8 @@ void analizeBuffer(){
                 }*/
             }
             returningAdress = placementAdress;
-
+            char c = *placementAdress;
+            cout << c << endl;
         }
         string variableName = jsonBuffer["name"];
         string variableType = jsonBuffer["type"];
@@ -167,6 +206,8 @@ void analizeBuffer(){
         string returningAdressString = ss.str();
         jsonBuffer["adress"] = returningAdressString;
         string sendJson = jsonBuffer.dump();
+        cout << startAdress << endl;
+        cout << returningAdress << endl;
         /*
         memset(buffer,0,255);
         strncpy(buffer, sendJson.c_str(),255);
@@ -191,7 +232,7 @@ void readBuffer(){
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-
+    std::cout.precision(16);
     int portno;
     int option = 1;
     socklen_t clilen;
