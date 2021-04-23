@@ -75,50 +75,50 @@ string getVariableValue(string variableName){
 
 double checkNumericalValueOfExpression(string stringExpression){
     QString qExpression = QString::fromStdString(stringExpression);
-    qExpression.remove(" ");
-    long double ld;
-    if(qExpression.contains("-")){
-        qExpression.replace(QString("--"),QString("+"));
-        if(qExpression.contains("-")){
-            QStringList split = qExpression.split("-");
-            double value = checkNumericalValueOfExpression(split.at(0).toStdString());
-            split.pop_front();
-            for(QString element : split){
-                value -= checkNumericalValueOfExpression(element.toStdString());
-            } return value;
-        } else {
-            return checkNumericalValueOfExpression(qExpression.toStdString());
-        }
-    } else if(qExpression.contains("+")){
-        QStringList split = qExpression.split("+");
-        double value = 0;
-        for(QString element : split){
-            value += checkNumericalValueOfExpression(element.toStdString());
-        } return value;
-    } else if(qExpression.contains("/")){
-        QStringList split = qExpression.split("/");
-        double value = checkNumericalValueOfExpression(split.at(0).toStdString());
-        split.pop_front();
-        for(QString element : split){
-            value /= checkNumericalValueOfExpression(element.toStdString());
-        } return value;
-    } else if(qExpression.contains("*")){
-        QStringList split = qExpression.split("*");
-        double value = 1;
-        for(QString element : split){
-            value *= checkNumericalValueOfExpression(element.toStdString());
-        } return value;
-    } else{
-        string sExpression = qExpression.toStdString();
-        if((std::istringstream(sExpression) >> ld >> std::ws).eof()){
-            return stod(sExpression);
-        } else{
-            string variableValue = getVariableValue(sExpression);
-            return stod(variableValue);
-        }
-    }
+       qExpression.remove(" ");
+       long double ld;
+       if(qExpression.contains("+")){
+           QStringList split = qExpression.split("+");
+           double value = 0;
+           for(QString element : split){
+               value += checkNumericalValueOfExpression(element.toStdString());
+           } return value;
+        } else if(qExpression.contains("-")){
+           if(qExpression.contains("--")){
+               qExpression.replace(QString("--"),QString("+"));
+               return checkNumericalValueOfExpression(qExpression.toStdString());
+           } else {
+               QStringList split = qExpression.split("-");
+               double value = checkNumericalValueOfExpression(split.at(0).toStdString());
+               split.pop_front();
+               for(QString element : split){
+                   value -= checkNumericalValueOfExpression(element.toStdString());
+               } return value;
+           }
+       } else if(qExpression.contains("*")){
+           QStringList split = qExpression.split("*");
+           double value = 1;
+           for(QString element : split){
+               value *= checkNumericalValueOfExpression(element.toStdString());
+           } return value;
+       } else if(qExpression.contains("/")){
+           QStringList split = qExpression.split("/");
+           double value = checkNumericalValueOfExpression(split.at(0).toStdString());
+           split.pop_front();
+           for(QString element : split){
+               value /= checkNumericalValueOfExpression(element.toStdString());
+           } return value;
+       } else{
+           string sExpression = qExpression.toStdString();
+           if((std::istringstream(sExpression) >> ld >> std::ws).eof()){
+               return stod(sExpression);
+           } else{
+               string variableValue = getVariableValue(sExpression);
+               return stod(variableValue);
+           }
+       }
 
-}
+   }
 
 void analizeBuffer(){
     if (buffer[0] == '{'){
