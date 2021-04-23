@@ -154,7 +154,6 @@ void analizeBuffer(){
                             if (n < 0){
                                 error("ERROR writing to socket");
                             }
-                            readBuffer();
                             return;
                         }else if(nameToOffsetMap.count(variableValue) > 0){
                             string recievedVariableValue = getVariableValue(variableValue);
@@ -174,7 +173,6 @@ void analizeBuffer(){
                             if (n < 0){
                                 error("ERROR writing to socket");
                             }
-                            readBuffer();
                             return;
                         }else{
                             throw variableValue;
@@ -188,7 +186,6 @@ void analizeBuffer(){
                         if (n < 0){
                             error("ERROR writing to socket");
                         }
-                        readBuffer();
                         return;
                     } catch( exception exerror  ) {
                         string strChar(exerror.what());
@@ -200,7 +197,6 @@ void analizeBuffer(){
                         if (n < 0){
                             error("ERROR writing to socket");
                         }
-                        readBuffer();
                         return;
                     }
                 }else{
@@ -231,8 +227,8 @@ void analizeBuffer(){
                         if (n < 0){
                             error("ERROR writing to socket");
                         }
-                        readBuffer();
                         return;
+
                     }  catch (exception e) {
                         string strChar(e.what());
                         string storageError = "ERROR: " + strChar;
@@ -244,14 +240,13 @@ void analizeBuffer(){
             }else{
                 string storageError ="ERROR: Variable " + (string)jsonBuffer["name"] + " has not been declared yet";
                 cout << storageError << endl;
-                /*
+
                 memset(buffer,0,255);
                 strncpy(buffer, storageError.c_str(),255);
-                int n = write(sockfd,buffer,strlen(buffer));
+                int n = write(newsockfd,buffer,strlen(buffer));
                 if (n < 0){
                     error("ERROR writing to socket");
-                }*/
-                readBuffer();
+                }
                 return;
             }
 
@@ -285,7 +280,6 @@ void analizeBuffer(){
                     if (n < 0){
                         error("ERROR writing to socket");
                     }
-                    readBuffer();
                     return;
 
                 } catch( exception exerror ) {
@@ -300,7 +294,6 @@ void analizeBuffer(){
                     if (n < 0){
                         error("ERROR writing to socket");
                     }
-                    readBuffer();
                     return;
                 }
                 returningAdress = placementAdress;
@@ -340,7 +333,6 @@ void analizeBuffer(){
                     if (n < 0){
                         error("ERROR writing to socket");
                     }
-                    readBuffer();
                     return;
                 } catch( exception exerror ) {
                     string strChar(exerror.what());
@@ -354,7 +346,6 @@ void analizeBuffer(){
                     if (n < 0){
                         error("ERROR writing to socket");
                     }
-                    readBuffer();
                     return;
                 }
                 returningAdress = placementAdress;
@@ -395,7 +386,6 @@ void analizeBuffer(){
                     if (n < 0){
                         error("ERROR writing to socket");
                     }
-                    readBuffer();
                     return;
                 } catch( exception exerror ) {
                     string strChar(exerror.what());
@@ -409,7 +399,6 @@ void analizeBuffer(){
                     if (n < 0){
                         error("ERROR writing to socket");
                     }
-                    readBuffer();
                     return;
                 }
                 returningAdress = placementAdress;
@@ -445,7 +434,6 @@ void analizeBuffer(){
                     if (n < 0){
                         error("ERROR writing to socket");
                     }
-                    readBuffer();
                     return;
                 } catch( exception exerror) {
                     string strChar(exerror.what());
@@ -459,7 +447,6 @@ void analizeBuffer(){
                     if (n < 0){
                         error("ERROR writing to socket");
                     }
-                    readBuffer();
                     return;
                 }
                 returningAdress = placementAdress;
@@ -495,7 +482,6 @@ void analizeBuffer(){
                     if (n < 0){
                         error("ERROR writing to socket");
                     }
-                    readBuffer();
                     return;
                 } catch( exception exerror  ) {
                     string strChar(exerror.what());
@@ -509,7 +495,6 @@ void analizeBuffer(){
                     if (n < 0){
                         error("ERROR writing to socket");
                     }
-                    readBuffer();
                     return;
                 }
                 returningAdress = placementAdress;
@@ -543,7 +528,6 @@ void analizeBuffer(){
             error("ERROR writing to socket");
         }
    }
-   readBuffer();
 }
 
 
@@ -553,7 +537,6 @@ void readBuffer(){
     int n = read(newsockfd,buffer,255);
     if (n < 0) error("ERROR reading from socket");
     printf("Message received: %s\n",buffer);
-    analizeBuffer();
 }
 
 int main(int argc, char *argv[])
@@ -606,13 +589,10 @@ int main(int argc, char *argv[])
 
     startAdress = malloc(10000);
 
-    readBuffer();
-
-
-
-
-
-
+    while(true){
+        readBuffer();
+        analizeBuffer();
+    }
 
     return a.exec();
 }
