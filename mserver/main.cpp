@@ -251,6 +251,18 @@ void analizeBuffer(){
             }
 
         }else if (jsonBuffer["type"] == "int"){
+            if(nameToOffsetMap.count(jsonBuffer["name"]) > 0){
+                string invalidName = jsonBuffer["name"];
+                string storageError ="ERROR   " + invalidName + " has already been declared.";
+                cout << storageError << endl;
+                memset(buffer,0,255);
+                strncpy(buffer, storageError.c_str(),255);
+                int n = write(newsockfd,buffer,strlen(buffer));
+                if (n < 0){
+                    error("ERROR writing to socket");
+                }
+                return;
+            }
             char* modifiedVoidPointer = (char*)  startAdress + mainOffset;
             int* placementAdress = (int*) modifiedVoidPointer;
             if(declarationFlag == false){
@@ -305,6 +317,18 @@ void analizeBuffer(){
                 returningAdress = placementAdress;
             }
         }else if (jsonBuffer["type"] == "float"){
+            if(nameToOffsetMap.count(jsonBuffer["name"]) > 0){
+                string invalidName = jsonBuffer["name"];
+                string storageError ="ERROR   " + invalidName + " has already been declared.";
+                cout << storageError << endl;
+                memset(buffer,0,255);
+                strncpy(buffer, storageError.c_str(),255);
+                int n = write(newsockfd,buffer,strlen(buffer));
+                if (n < 0){
+                    error("ERROR writing to socket");
+                }
+                return;
+            }
             char* modifiedVoidPointer = (char*)  startAdress + mainOffset;
             float* placementAdress = (float*) modifiedVoidPointer;
             string variableValue = jsonBuffer["value"];
@@ -358,6 +382,18 @@ void analizeBuffer(){
                 returningAdress = placementAdress;
             }
         }else if (jsonBuffer["type"] == "double"){
+            if(nameToOffsetMap.count(jsonBuffer["name"]) > 0){
+                string invalidName = jsonBuffer["name"];
+                string storageError ="ERROR   " + invalidName + " has already been declared.";
+                cout << storageError << endl;
+                memset(buffer,0,255);
+                strncpy(buffer, storageError.c_str(),255);
+                int n = write(newsockfd,buffer,strlen(buffer));
+                if (n < 0){
+                    error("ERROR writing to socket");
+                }
+                return;
+            }
             char* modifiedVoidPointer = (char*)  startAdress + mainOffset;
             double* placementAdress = (double*) modifiedVoidPointer;
             string variableValue = jsonBuffer["value"];
@@ -412,6 +448,18 @@ void analizeBuffer(){
                 returningAdress = placementAdress;
             }
         } else if (jsonBuffer["type"] == "long"){
+            if(nameToOffsetMap.count(jsonBuffer["name"]) > 0){
+                string invalidName = jsonBuffer["name"];
+                string storageError ="ERROR   " + invalidName + " has already been declared.";
+                cout << storageError << endl;
+                memset(buffer,0,255);
+                strncpy(buffer, storageError.c_str(),255);
+                int n = write(newsockfd,buffer,strlen(buffer));
+                if (n < 0){
+                    error("ERROR writing to socket");
+                }
+                return;
+            }
             char* modifiedVoidPointer = (char*)  startAdress + mainOffset;
             long* placementAdress = (long*) modifiedVoidPointer;
             string variableValue = jsonBuffer["value"];
@@ -458,6 +506,18 @@ void analizeBuffer(){
                 returningAdress = placementAdress;
             }
         } else if (jsonBuffer["type"] == "char"){
+            if(nameToOffsetMap.count(jsonBuffer["name"]) > 0){
+                string invalidName = jsonBuffer["name"];
+                string storageError ="ERROR   " + invalidName + " has already been declared.";
+                cout << storageError << endl;
+                memset(buffer,0,255);
+                strncpy(buffer, storageError.c_str(),255);
+                int n = write(newsockfd,buffer,strlen(buffer));
+                if (n < 0){
+                    error("ERROR writing to socket");
+                }
+                return;
+            }
             char* modifiedVoidPointer = (char*)  startAdress + mainOffset;
             char* placementAdress = modifiedVoidPointer;
             string variableValue = jsonBuffer["value"];
@@ -584,8 +644,6 @@ int main(int argc, char *argv[])
     close(newsockfd);
     close(sockfd);
     */
-
-
 
     startAdress = malloc(10000);
 
