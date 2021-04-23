@@ -45,7 +45,33 @@ void bindingProcess(int* sockfd, int* portno, struct sockaddr_in* serv_addr){
 }
 void readBuffer();
 
-string getVariableValue(string s);
+string getVariableValue(string variableName){
+    if(nameToOffsetMap.count(variableName) > 0){
+        int variableOffset = nameToOffsetMap[variableName];
+        string variableType = nameToTypeMap[variableName];
+        char* variableAdress = (char*) startAdress;
+        variableAdress = variableAdress + variableOffset;
+        if (variableType == "int"){
+            int* correctVariableAdress = (int*) variableAdress;
+            int variableValue = *correctVariableAdress;
+            return to_string(variableValue);
+        } else if (variableType == "float"){
+            float* correctVariableAdress = (float*) variableAdress;
+            float variableValue = *correctVariableAdress;
+            return to_string(variableValue);
+        } else if (variableType == "double"){
+            double* correctVariableAdress = (double*) variableAdress;
+            double variableValue = *correctVariableAdress;
+            return to_string(variableValue);
+        } else{
+            long* correctVariableAdress = (long*) variableAdress;
+            long variableValue = *correctVariableAdress;
+            return to_string(variableValue);
+        }
+    }else{
+        return "ERROR";
+    }
+}
 
 double checkNumericalValueOfExpression(string stringExpression){
     int length = stringExpression.size();
