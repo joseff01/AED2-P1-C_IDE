@@ -172,28 +172,28 @@ void analizeBuffer(){
                         throw variableValue;
                     }
                 }  catch (string variableValue){
-                    string storageError ="ERROR: " + variableValue + " is not a valid int.";
+                    string storageError ="ERROR   " + variableValue + " is not a valid int.";
                     cout << storageError << endl;
-                    /*
-                    memset(buffer,0,255);
-                    strncpy(buffer, storageError.c_str(),255);
-                    int n = write(sockfd,buffer,strlen(buffer));
-                    if (n < 0){
-                        error("ERROR writing to socket");
-                    }*/
-                    readBuffer();
-                    return;
-                } catch( exception error ) {
-                    string strChar(error.what());
-                    string storageError = "ERROR: " + strChar;
-                    cout << storageError << endl;
-                    /*
+
                     memset(buffer,0,255);
                     strncpy(buffer, storageError.c_str(),255);
                     int n = write(newsockfd,buffer,strlen(buffer));
                     if (n < 0){
                         error("ERROR writing to socket");
-                    }*/
+                    }
+                    readBuffer();
+                    return;
+
+                } catch( exception exerror ) {
+                    string strChar(exerror.what());
+                    string storageError = "ERROR   " + strChar;
+                    cout << storageError << endl;
+                    memset(buffer,0,255);
+                    strncpy(buffer, storageError.c_str(),255);
+                    int n = write(newsockfd,buffer,strlen(buffer));
+                    if (n < 0){
+                        error("ERROR writing to socket");
+                    }
                     readBuffer();
                     return;
                 }
@@ -226,27 +226,25 @@ void analizeBuffer(){
                         throw variableValue;
                     }
                 }  catch (string variableValue){
-                    string storageError ="ERROR: " + variableValue + " is not a valid float.";
-                    /*
-                    memset(buffer,0,255);
-                    strncpy(buffer, storageError.c_str(),255);
-                    int n = write(sockfd,buffer,strlen(buffer));
-                    if (n < 0){
-                        error("ERROR writing to socket");
-                    }*/
-                    readBuffer();
-                    return;
-                } catch( exception error ) {
-                    string strChar(error.what());
-                    string storageError = "ERROR: " + strChar;
-                    cout << storageError << endl;
-                    /*
+                    string storageError ="ERROR   " + variableValue + " is not a valid float.";
                     memset(buffer,0,255);
                     strncpy(buffer, storageError.c_str(),255);
                     int n = write(newsockfd,buffer,strlen(buffer));
                     if (n < 0){
                         error("ERROR writing to socket");
-                    }*/
+                    }
+                    readBuffer();
+                    return;
+                } catch( exception exerror ) {
+                    string strChar(exerror .what());
+                    string storageError = "ERROR   " + strChar;
+                    cout << storageError << endl;
+                    memset(buffer,0,255);
+                    strncpy(buffer, storageError.c_str(),255);
+                    int n = write(newsockfd,buffer,strlen(buffer));
+                    if (n < 0){
+                        error("ERROR writing to socket");
+                    }
                     readBuffer();
                     return;
                 }
@@ -280,27 +278,25 @@ void analizeBuffer(){
                         throw variableValue;
                     }
                 }  catch (string variableValue){
-                    string storageError ="ERROR: " + variableValue + " is not a valid float.";
-                    /*
-                    memset(buffer,0,255);
-                    strncpy(buffer, storageError.c_str(),255);
-                    int n = write(sockfd,buffer,strlen(buffer));
-                    if (n < 0){
-                        error("ERROR writing to socket");
-                    }*/
-                    readBuffer();
-                    return;
-                } catch( exception error ) {
-                    string strChar(error.what());
-                    string storageError = "ERROR: " + strChar;
-                    cout << storageError << endl;
-                    /*
+                    string storageError ="ERROR   " + variableValue + " is not a valid float.";
                     memset(buffer,0,255);
                     strncpy(buffer, storageError.c_str(),255);
                     int n = write(newsockfd,buffer,strlen(buffer));
                     if (n < 0){
                         error("ERROR writing to socket");
-                    }*/
+                    }
+                    readBuffer();
+                    return;
+                } catch( exception exerror ) {
+                    string strChar(exerror.what());
+                    string storageError = "ERROR   " + strChar;
+                    cout << storageError << endl;
+                    memset(buffer,0,255);
+                    strncpy(buffer, storageError.c_str(),255);
+                    int n = write(newsockfd,buffer,strlen(buffer));
+                    if (n < 0){
+                        error("ERROR writing to socket");
+                    }
                     readBuffer();
                     return;
                 }
@@ -327,28 +323,26 @@ void analizeBuffer(){
                         throw variableValue;
                     }
                 }  catch (string variableValue){
-                    string storageError ="ERROR: " + variableValue + " is not a valid long.";
+                    string storageError ="ERROR   " + variableValue + " is not a valid long.";
                     cout << storageError << endl;
-                    /*
-                    memset(buffer,0,255);
-                    strncpy(buffer, storageError.c_str(),255);
-                    int n = write(sockfd,buffer,strlen(buffer));
-                    if (n < 0){
-                        error("ERROR writing to socket");
-                    }*/
-                    readBuffer();
-                    return;
-                } catch( exception error ) {
-                    string strChar(error.what());
-                    string storageError = "ERROR: " + strChar;
-                    cout << storageError << endl;
-                    /*
                     memset(buffer,0,255);
                     strncpy(buffer, storageError.c_str(),255);
                     int n = write(newsockfd,buffer,strlen(buffer));
                     if (n < 0){
                         error("ERROR writing to socket");
-                    }*/
+                    }
+                    readBuffer();
+                    return;
+                } catch( exception exerror) {
+                    string strChar(exerror.what());
+                    string storageError = "ERROR   " + strChar;
+                    cout << storageError << endl;
+                    memset(buffer,0,255);
+                    strncpy(buffer, storageError.c_str(),255);
+                    int n = write(newsockfd,buffer,strlen(buffer));
+                    if (n < 0){
+                        error("ERROR writing to socket");
+                    }
                     readBuffer();
                     return;
                 }
@@ -372,28 +366,26 @@ void analizeBuffer(){
                         throw variableValue;
                     }
                 }  catch (string variableValue){
-                    string storageError ="ERROR: " + variableValue + " is not a valid char.";
+                    string storageError ="ERROR   " + variableValue + " is not a valid char.";
                     cout << storageError << endl;
-                    /*
-                    memset(buffer,0,255);
-                    strncpy(buffer, storageError.c_str(),255);
-                    int n = write(sockfd,buffer,strlen(buffer));
-                    if (n < 0){
-                        error("ERROR writing to socket");
-                    }*/
-                    readBuffer();
-                    return;
-                } catch( exception error ) {
-                    string strChar(error.what());
-                    string storageError = "ERROR: " + strChar;
-                    cout << storageError << endl;
-                    /*
                     memset(buffer,0,255);
                     strncpy(buffer, storageError.c_str(),255);
                     int n = write(newsockfd,buffer,strlen(buffer));
                     if (n < 0){
                         error("ERROR writing to socket");
-                    }*/
+                    }
+                    readBuffer();
+                    return;
+                } catch( exception exerror  ) {
+                    string strChar(exerror.what());
+                    string storageError = "ERROR   " + strChar;
+                    cout << storageError << endl;
+                    memset(buffer,0,255);
+                    strncpy(buffer, storageError.c_str(),255);
+                    int n = write(newsockfd,buffer,strlen(buffer));
+                    if (n < 0){
+                        error("ERROR writing to socket");
+                    }
                     readBuffer();
                     return;
                 }
@@ -420,13 +412,12 @@ void analizeBuffer(){
         string sendJson = jsonBuffer.dump();
         cout << startAdress << endl;
         cout << returningAdress << endl;
-        /*
         memset(buffer,0,255);
         strncpy(buffer, sendJson.c_str(),255);
-        int n = write(sockfd,buffer,strlen(buffer));
+        int n = write(newsockfd,buffer,strlen(buffer));
         if (n < 0){
             error("ERROR writing to socket");
-        }*/
+        }
    }
    readBuffer();
 }

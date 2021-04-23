@@ -1,3 +1,7 @@
 
 build-AEDII-GUI-Desktop_Qt_5_15_2_GCC_64bit-Debug/
 build-mserver-Desktop_Qt_5_15_2_GCC_64bit-Debug/
+
+mserver/mserver.pro.user
+
+C!/AEDII-GUI/AEDII-GUI.pro.user
