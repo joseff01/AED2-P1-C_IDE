@@ -38,6 +38,20 @@ MainWindow::~MainWindow() {
 * Receives a QString
 * Returns a list with the identified type,name and value.
 */
+bool MainWindow::getTrueIf(){
+    return this->trueIf;
+}
+void MainWindow::setTrueIf(bool flag){this->trueIf = flag;}
+
+void MainWindow::ifAndElse(QString text){
+    QString a = "('a'";
+    if(text == a){
+        setTrueIf(true);
+    }
+    else{
+        setTrueIf(false);
+    }
+}
 
 QStringList MainWindow::identifyStart(QString text)
 {
@@ -48,12 +62,29 @@ QStringList MainWindow::identifyStart(QString text)
     QString scope;
 
     //Scope  definition
+    if(text.contains("if")){
+        text.remove("if");
+        QStringList ifSplit = text.split(")");
+        QString param = ifSplit.at(0);
+        ifAndElse(param);
+        text = ifSplit.at(1);
+    }
+    if(text.contains("else")){
+        text.remove("else").remove("{");
+        if(getTrueIf()){
+            setTrueIf(false);
+        }
+        else{
+            setTrueIf(true);
+        }
+    }
     if(text.contains("{")){
         this->setScopeNum(this->getScopeNum()+1);
         text.remove("{");
     } else if(text.contains("}")){
         this->setScopeNum(this->getScopeNum()-1);
         text.remove("}");
+        setTrueIf(true);
     } scope = QString::fromStdString(std::to_string(this->getScopeNum()));
 
     //Division by =
@@ -92,7 +123,6 @@ QStringList MainWindow::identifyStart(QString text)
     QStringList package;
     package << type << name << value << scope;;
     return package;
-
 }
 
 void MainWindow::on_pushButton_clicked()
@@ -119,8 +149,10 @@ void MainWindow::on_pushButton_clicked()
 }
 void MainWindow::setMainList(std::list<QStringList> newList){this->mainList = newList;}
 std::list<QStringList> MainWindow::getMainList(){ return this->mainList;}
+
 int MainWindow::getScopeNum(){return this->scopeNum;}
 void MainWindow::setScopeNum(int scopeNum){this->scopeNum = scopeNum;}
+
 void serverError(const char *msg)
 {
     perror(msg);
@@ -142,8 +174,8 @@ void MainWindow::processBuffer(){
         QString value = QString::fromStdString(jsonBuffer["value"]);
         QString name = QString::fromStdString(jsonBuffer["name"]);
         QString memory = QString::fromStdString(jsonBuffer["adress"]);
-        QString a = "2";
-        ramView(memory, value, name, a);
+        QString reference = QString::fromStdString(jsonBuffer["referenceCounter"]);
+        ramView(memory, value, name, reference);
      }
    else
    {
