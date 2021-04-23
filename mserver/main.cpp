@@ -103,18 +103,18 @@ double checkNumericalValueOfExpression(string stringExpression){
             value /= checkNumericalValueOfExpression(element.toStdString());
         } return value;
     } else if(qExpression.contains("*")){
-        QStringList split = qExpression.split("*+");
+        QStringList split = qExpression.split("*");
         double value = 1;
         for(QString element : split){
             value *= checkNumericalValueOfExpression(element.toStdString());
         } return value;
     } else{
         string sExpression = qExpression.toStdString();
-        if((std::istringstream() >> ld >> std::ws).eof()){
+        if((std::istringstream(sExpression) >> ld >> std::ws).eof()){
             return stod(sExpression);
         } else{
             string variableValue = getVariableValue(sExpression);
-            return stod(sExpression);
+            return stod(variableValue);
         }
     }
 
@@ -135,7 +135,15 @@ void analizeBuffer(){
                 if (jsonBuffer["type"] == "char"){
 
                 }else{
-                    double valueToAssign = checkNumericalValueOfExpression(jsonBuffer["value"]);
+                    try {
+                        double valueToAssign = checkNumericalValueOfExpression(jsonBuffer["value"]);
+                        cout << valueToAssign << endl;
+                    }  catch (exception e) {
+                        string strChar(e.what());
+                        string storageError = "ERROR: " + strChar;
+                        cout << storageError << endl;
+                        error("aaaa");
+                    }
 
                 }
             }else{
