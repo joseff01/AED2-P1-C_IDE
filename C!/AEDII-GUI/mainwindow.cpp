@@ -97,6 +97,7 @@ QStringList MainWindow::identifyStart(QString text)
 
 void MainWindow::on_pushButton_clicked()
 {
+    ui->pushButton->setDisabled(true);
     //Gettingg text from editor
     QString text = ui->textEdit->toPlainText();
     QStringList list = text.split(QLatin1Char(';'));
@@ -120,6 +121,46 @@ void MainWindow::setMainList(std::list<QStringList> newList){this->mainList = ne
 std::list<QStringList> MainWindow::getMainList(){ return this->mainList;}
 int MainWindow::getScopeNum(){return this->scopeNum;}
 void MainWindow::setScopeNum(int scopeNum){this->scopeNum = scopeNum;}
+void serverError(const char *msg)
+{
+    perror(msg);
+    exit(1);
+}
+
+void MainWindow::ramView(QString memory, QString value, QString name, QString reference){
+    ui->memoryTextEdit->append(memory);
+    ui->valueTextEdit->append(value);
+    ui->nameTextEdit->append(name);
+    ui->referenceTextEdit->append(reference);
+}
+
+void MainWindow::processBuffer(){
+    if (buffer[0] == '{')
+    {
+        ui->applicationLogTextEdit->append("WARN    parsing message from the server");
+        json jsonBuffer = json::parse(buffer);
+        QString value = QString::fromStdString(jsonBuffer["value"]);
+        QString name = QString::fromStdString(jsonBuffer["name"]);
+        QString memory = QString::fromStdString(jsonBuffer["adress"]);
+        QString a = "2";
+        ramView(memory, value, name, a);
+     }
+   else
+   {
+    string newstr(buffer);
+    QString str = QString::fromStdString(newstr);
+    ui->applicationLogTextEdit->append(str);
+   }
+}
+
+void MainWindow::readBuffer(){
+    ui->applicationLogTextEdit->append("INFO       message recieved from server");
+    memset(buffer, 0, 255);
+    int n = read(sockfd,buffer,255);
+    if (n < 0) serverError("ERROR reading from socket");
+
+    processBuffer();
+}
 
 void MainWindow::on_nextButton_clicked()
 {
@@ -159,34 +200,24 @@ void MainWindow::on_nextButton_clicked()
             ui->terminalTextEdit->append("\n"+display);
             strncpy(buffer, jsonString.c_str(),255);
             int n = write(sockfd,buffer,strlen(buffer));
+            ui->applicationLogTextEdit->append("INFO       Sending Json to server");
             if (n < 0){
                 serverError("ERROR writing to socket");
             }
+            readBuffer();
         }
     }
+    else{ui->pushButton->setDisabled(false);}
 }
+
 void MainWindow::cout(string newText){
     QString textDisplay = QString::fromStdString(newText);
     textDisplay.insert(0,' ');
     textDisplay.insert(0,'>');
     ui->applicationLogTextEdit->append(textDisplay);
 }
-void MainWindow::ramView(string memory, string value, string name, string reference){
-    QString memoryDisplay = QString::fromStdString(memory);
-    QString valueDisplay = QString::fromStdString(value);
-    QString nameDisplay = QString::fromStdString(name);
-    QString referenceDisplay = QString::fromStdString(reference);
-    ui->memoryTextEdit->append(memoryDisplay);
-    ui->valueTextEdit->append(valueDisplay);
-    ui->nameTextEdit->append(nameDisplay);
-    ui->referenceTextEdit->append(referenceDisplay);
-}
 
-void serverError(const char *msg)
-{
-    perror(msg);
-    exit(1);
-}
+
 
 void connectToMServer(int portno){
     int option = 1;
@@ -214,16 +245,6 @@ void connectToMServer(int portno){
     if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) {
         serverError("ERROR connecting");
     }
-    /*
-    std::cout << "Connection established." << std::endl;
-    /*
-    memset(buffer,0,255);
-    string testString = "The quick brown fox jumps over the lazy dog";
-    strncpy(buffer, testString.c_str(),255);
-    int n = write(sockfd,buffer,strlen(buffer));
-    if (n < 0){
-        serverError("ERROR writing to socket");
-    }*/
 }
 
 void MainWindow::on_backButton_clicked() {
@@ -243,9 +264,9 @@ void MainWindow::on_backButton_clicked() {
 void MainWindow::on_deleteButton_clicked()
 {
     ui->textEdit->clear();
-    ui->memoryTextEdit->clear();
-    ui->valueTextEdit->clear();
-    ui->nameTextEdit->clear();
-    ui->referenceTextEdit->clear();
+    ui->memoryTextEdit->setText("Memory");
+    ui->valueTextEdit->setText("Value");
+    ui->nameTextEdit->setText("Name");
+    ui->referenceTextEdit->setText("Reference");
 
 }
