@@ -45,6 +45,8 @@ public:
     QStringList identifyStart(QString text);
     bool getTrueIf();
     void setTrueIf(bool flag);
+    bool getStopFlag();
+    void setStopFlag(bool flag);
 
 private slots:
     /**
@@ -68,6 +70,7 @@ private:
     Ui::MainWindow *ui;
     std::list<QStringList> mainList;
     bool trueIf = true;
+    bool stopFlag = false;
     /**
      * @brief cout, shows in the terminal the instruction
      * @param newText; text introudced by the user
