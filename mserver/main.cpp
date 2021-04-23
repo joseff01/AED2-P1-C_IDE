@@ -48,10 +48,50 @@ void readBuffer();
 string getVariableValue(string s);
 
 double checkNumericalValueOfExpression(string stringExpression){
-    int length = stringExpression.size();
-    for (int i = 0; i < length; i++){
-        x+2.65/87*y
+    QString qExpression = QString::fromStdString(stringExpression);
+    qExpression.remove(" ");
+    long double ld;
+    if(qExpression.contains("-")){
+        qExpression.replace(QString("--"),QString("+"));
+        if(qExpression.contains("-")){
+            QStringList split = qExpression.split("-");
+            double value = checkNumericalValueOfExpression(split.at(0).toStdString());
+            split.pop_front();
+            for(QString element : split){
+                value -= checkNumericalValueOfExpression(element.toStdString());
+            } return value;
+        } else {
+            return checkNumericalValueOfExpression(qExpression.toStdString());
+        }
+    } else if(qExpression.contains("+")){
+        QStringList split = qExpression.split("+");
+        double value = 0;
+        for(QString element : split){
+            value += checkNumericalValueOfExpression(element.toStdString());
+        } return value;
+    } else if(qExpression.contains("/")){
+        QStringList split = qExpression.split("/");
+        double value = checkNumericalValueOfExpression(split.at(0).toStdString());
+        split.pop_front();
+        for(QString element : split){
+            value /= checkNumericalValueOfExpression(element.toStdString());
+        } return value;
+    } else if(qExpression.contains("*")){
+        QStringList split = qExpression.split("*+");
+        double value = 1;
+        for(QString element : split){
+            value *= checkNumericalValueOfExpression(element.toStdString());
+        } return value;
+    } else{
+        string sExpression = qExpression.toStdString();
+        if((std::istringstream() >> ld >> std::ws).eof()){
+            return stod(sExpression);
+        } else{
+            string variableValue = getVariableValue(sExpression);
+            return stod(sExpression);
+        }
     }
+
 }
 
 void analizeBuffer(){
@@ -70,7 +110,7 @@ void analizeBuffer(){
 
                 }else{
                     double valueToAssign = checkNumericalValueOfExpression(jsonBuffer["value"]);
-                    void* variableAdress = ;
+
                 }
             }else{
                 string storageError ="ERROR: Variable " + (string)jsonBuffer["name"] + " has not been declared yet";
