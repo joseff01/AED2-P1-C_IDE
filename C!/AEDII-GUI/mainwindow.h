@@ -43,7 +43,8 @@ public:
     int getScopeNum();
     void setScopeNum(int scopeNum);
     QStringList identifyStart(QString text);
-
+    bool getTrueIf();
+    void setTrueIf(bool flag);
 
 private slots:
     /**
@@ -66,6 +67,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     std::list<QStringList> mainList;
+    bool trueIf = true;
     /**
      * @brief cout, shows in the terminal the instruction
      * @param newText; text introudced by the user
@@ -81,5 +83,6 @@ private:
      */
     void ramView(QString memory, QString value, QString name, QString reference);
     void readBuffer();
+    void ifAndElse(QString text);
 };
 #endif // MAINWINDOW_H
