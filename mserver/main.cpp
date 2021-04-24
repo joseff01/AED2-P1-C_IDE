@@ -74,7 +74,11 @@ string getVariableValue(string variableName){
         } else if (variableType == "double"){
             double* correctVariableAdress = (double*) variableAdress;
             double variableValue = *correctVariableAdress;
-            return to_string(variableValue);
+            stringstream ss;
+            ss << setprecision(15) << variableValue;
+            string variableValueDouble;
+            ss >> variableValueDouble;
+            return variableValueDouble;
         } else if (variableType == "long"){
             long* correctVariableAdress = (long*) variableAdress;
             long variableValue = *correctVariableAdress;
@@ -283,15 +287,26 @@ void analizeBuffer(){
                         if (variableType == "int"){
                             int* correctVariableAdress = (int*) variableAdress;
                             *correctVariableAdress = valueToAssign;
+                            int intValueToAssign = valueToAssign;
+                            jsonBuffer["value"] = to_string(intValueToAssign);
                         } else if (variableType == "float"){
                             float* correctVariableAdress = (float*) variableAdress;
                             *correctVariableAdress = valueToAssign;
+                            float floatValueToAssign = valueToAssign;
+                            jsonBuffer["value"] = to_string(floatValueToAssign);
                         } else if (variableType == "double"){
                             double* correctVariableAdress = (double*) variableAdress;
                             *correctVariableAdress = valueToAssign;
+                            stringstream ss;
+                            ss << setprecision(15) << valueToAssign;
+                            string variableValueDouble;
+                            ss >> variableValueDouble;
+                            jsonBuffer["value"] = variableValueDouble;
                         } else{
                             long* correctVariableAdress = (long*) variableAdress;
                             *correctVariableAdress = valueToAssign;
+                            long longValueToAssign = valueToAssign;
+                            jsonBuffer["value"] = to_string(longValueToAssign);
                         }
                         jsonBuffer["value"] = to_string(valueToAssign);
                         string sendJson = jsonBuffer.dump();
