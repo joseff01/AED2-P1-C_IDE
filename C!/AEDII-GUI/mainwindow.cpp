@@ -281,7 +281,7 @@ void MainWindow::on_nextButton_clicked()
                 if (n < 0){
                 serverError("ERROR writing to socket");
                 }readBuffer();
-            }
+            } lastScope = package.at(3).toInt();
 
             json j;
             j["type"] = type.toStdString();
