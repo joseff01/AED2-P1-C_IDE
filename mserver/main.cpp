@@ -26,8 +26,10 @@ int sockfd, newsockfd;
 char buffer[255];
 void* startAdress;
 int mainOffset = 0;
+int currentScope = 0;
 map<string,int> nameToOffsetMap;
 map<string,string> nameToTypeMap;
+map<string,int> nameToScopeMap;
 
 void bindingProcess(int* sockfd, int* portno, struct sockaddr_in* serv_addr){
 
@@ -43,7 +45,17 @@ void bindingProcess(int* sockfd, int* portno, struct sockaddr_in* serv_addr){
         bindingProcess(sockfd, portno, serv_addr);
     }
 }
-void readBuffer();
+
+
+void resetMemory(){
+    nameToOffsetMap.clear();
+    nameToTypeMap.clear();
+    nameToScopeMap.clear();
+    mainOffset = 0;
+    currentScope = 0;
+    free(startAdress);
+    startAdress = malloc(10000);
+}
 
 string getVariableValue(string variableName){
     if(nameToOffsetMap.count(variableName) > 0){
@@ -125,16 +137,76 @@ double checkNumericalValueOfExpression(string stringExpression){
 
    }
 
+vector<string> removeScopeMemory(){
+    vector<string> listOfNames;
+    for (auto const& element : nameToScopeMap){
+        listOfNames.push_back(element.first);
+    }
+    vector<string> eliminatedVariableNames;
+    for (int i = 0; i < (int) listOfNames.size(); i++){
+        string variableName = listOfNames[i];
+        int scopeOfVariable = nameToScopeMap[variableName];
+        cout << "variable: "<< variableName << "   scope: " << scopeOfVariable << "    currentScope: " << currentScope << endl;
+        if (scopeOfVariable == currentScope){
+            int variableOffset = nameToOffsetMap[variableName];
+            string variableType = nameToTypeMap[variableName];
+            char* variableAdress = (char*) startAdress;
+            variableAdress = variableAdress + variableOffset;
+            int sizeOfVariable;
+            if (variableType == "int"){
+                int* correctVariableAdress = (int*) variableAdress;
+                *correctVariableAdress = 0;
+                sizeOfVariable = 4;
+            } else if (variableType == "float"){
+                float* correctVariableAdress = (float*) variableAdress;
+                *correctVariableAdress = 0;
+                sizeOfVariable = 4;
+            } else if (variableType == "double"){
+                double* correctVariableAdress = (double*) variableAdress;
+                *correctVariableAdress = 0;
+                sizeOfVariable = 8;
+            } else if (variableType == "long"){
+                long* correctVariableAdress = (long*) variableAdress;
+                *correctVariableAdress = 0;
+                sizeOfVariable = 8;
+            } else{
+                *variableAdress = '\0';
+                sizeOfVariable = 1;
+            }
+            mainOffset = mainOffset - sizeOfVariable;
+            nameToOffsetMap.erase(variableName);
+            nameToScopeMap.erase(variableName);
+            nameToTypeMap.erase(variableName);
+            eliminatedVariableNames.push_back(variableName);
+        }
+    }
+    currentScope = currentScope - 1;
+    return eliminatedVariableNames;
+}
+
 void analizeBuffer(){
     if (buffer[0] == '{'){
         void* returningAdress;
         json jsonBuffer = json::parse(buffer);
+        if (jsonBuffer["scope"] == "Ended"){
+            vector<string> eliminatedVariableNames = removeScopeMemory();
+            jsonBuffer["value"] = eliminatedVariableNames;
+            string sendJson = jsonBuffer.dump();
+            cout << sendJson << endl;
+            /*
+            memset(buffer,0,255);
+            strncpy(buffer, sendJson.c_str(),255);
+            int n = write(newsockfd,buffer,strlen(buffer));
+            if (n < 0){
+                error("ERROR writing to socket");
+            }
+            */
+            return;
+        }
         bool declarationFlag = false;
-
         if (jsonBuffer["value"] == "NULL"){
             declarationFlag = true;
         }
-
         if (jsonBuffer["type"] == "NULL"){
             if(nameToOffsetMap.count(jsonBuffer["name"]) > 0){
                 string variableType = nameToTypeMap[jsonBuffer["name"]];
@@ -186,6 +258,7 @@ void analizeBuffer(){
                         if (n < 0){
                             error("ERROR writing to socket");
                         }
+                        resetMemory();
                         return;
                     } catch( exception exerror  ) {
                         string strChar(exerror.what());
@@ -197,6 +270,7 @@ void analizeBuffer(){
                         if (n < 0){
                             error("ERROR writing to socket");
                         }
+                        resetMemory();
                         return;
                     }
                 }else{
@@ -233,7 +307,7 @@ void analizeBuffer(){
                         string strChar(e.what());
                         string storageError = "ERROR: " + strChar;
                         cout << storageError << endl;
-                        error("aaaa");
+                        error("FATAL ERROR: Llame a Jose Retana si esto ocurre");
                     }
 
                 }
@@ -247,6 +321,7 @@ void analizeBuffer(){
                 if (n < 0){
                     error("ERROR writing to socket");
                 }
+                resetMemory();
                 return;
             }
 
@@ -261,6 +336,7 @@ void analizeBuffer(){
                 if (n < 0){
                     error("ERROR writing to socket");
                 }
+                resetMemory();
                 return;
             }
             char* modifiedVoidPointer = (char*)  startAdress + mainOffset;
@@ -292,6 +368,7 @@ void analizeBuffer(){
                     if (n < 0){
                         error("ERROR writing to socket");
                     }
+                    resetMemory();
                     return;
 
                 } catch( exception exerror ) {
@@ -306,6 +383,7 @@ void analizeBuffer(){
                     if (n < 0){
                         error("ERROR writing to socket");
                     }
+                    resetMemory();
                     return;
                 }
                 returningAdress = placementAdress;
@@ -327,6 +405,7 @@ void analizeBuffer(){
                 if (n < 0){
                     error("ERROR writing to socket");
                 }
+                resetMemory();
                 return;
             }
             char* modifiedVoidPointer = (char*)  startAdress + mainOffset;
@@ -357,6 +436,7 @@ void analizeBuffer(){
                     if (n < 0){
                         error("ERROR writing to socket");
                     }
+                    resetMemory();
                     return;
                 } catch( exception exerror ) {
                     string strChar(exerror.what());
@@ -370,6 +450,7 @@ void analizeBuffer(){
                     if (n < 0){
                         error("ERROR writing to socket");
                     }
+                    resetMemory();
                     return;
                 }
                 returningAdress = placementAdress;
@@ -392,6 +473,7 @@ void analizeBuffer(){
                 if (n < 0){
                     error("ERROR writing to socket");
                 }
+                resetMemory();
                 return;
             }
             char* modifiedVoidPointer = (char*)  startAdress + mainOffset;
@@ -422,6 +504,7 @@ void analizeBuffer(){
                     if (n < 0){
                         error("ERROR writing to socket");
                     }
+                    resetMemory();
                     return;
                 } catch( exception exerror ) {
                     string strChar(exerror.what());
@@ -435,6 +518,7 @@ void analizeBuffer(){
                     if (n < 0){
                         error("ERROR writing to socket");
                     }
+                    resetMemory();
                     return;
                 }
                 returningAdress = placementAdress;
@@ -458,6 +542,7 @@ void analizeBuffer(){
                 if (n < 0){
                     error("ERROR writing to socket");
                 }
+                resetMemory();
                 return;
             }
             char* modifiedVoidPointer = (char*)  startAdress + mainOffset;
@@ -482,6 +567,7 @@ void analizeBuffer(){
                     if (n < 0){
                         error("ERROR writing to socket");
                     }
+                    resetMemory();
                     return;
                 } catch( exception exerror) {
                     string strChar(exerror.what());
@@ -495,6 +581,7 @@ void analizeBuffer(){
                     if (n < 0){
                         error("ERROR writing to socket");
                     }
+                    resetMemory();
                     return;
                 }
                 returningAdress = placementAdress;
@@ -516,6 +603,7 @@ void analizeBuffer(){
                 if (n < 0){
                     error("ERROR writing to socket");
                 }
+                resetMemory();
                 return;
             }
             char* modifiedVoidPointer = (char*)  startAdress + mainOffset;
@@ -542,6 +630,7 @@ void analizeBuffer(){
                     if (n < 0){
                         error("ERROR writing to socket");
                     }
+                    resetMemory();
                     return;
                 } catch( exception exerror  ) {
                     string strChar(exerror.what());
@@ -555,6 +644,7 @@ void analizeBuffer(){
                     if (n < 0){
                         error("ERROR writing to socket");
                     }
+                    resetMemory();
                     return;
                 }
                 returningAdress = placementAdress;
@@ -567,12 +657,17 @@ void analizeBuffer(){
                 returningAdress = placementAdress;
             }
         }
+        string variableScopeString = jsonBuffer["scope"];
+        int variableScope = stoi(variableScopeString);
+        currentScope = variableScope;
+        cout << variableScope << endl;
         string variableName = jsonBuffer["name"];
         string variableType = jsonBuffer["type"];
         int offset = mainOffset;
         mainOffset = mainOffset + (int)jsonBuffer["size"];
         nameToOffsetMap.insert(pair<string, int>(variableName,offset));
         nameToTypeMap.insert(pair<string, string>(variableName,variableType));
+        nameToScopeMap.insert(pair<string,int>(variableName,variableScope));
         std::stringstream ss;
         ss << returningAdress;
         string returningAdressString = ss.str();

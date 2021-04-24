@@ -101,6 +101,7 @@ QStringList MainWindow::identifyStart(QString text)
     QString scope;
 
     //While condition
+    /*
     if(text.contains("while")){
         if(text.startsWith("{")){
             this->setScopeNum(this->getScopeNum()+1);
@@ -118,6 +119,7 @@ QStringList MainWindow::identifyStart(QString text)
 
         }
     }
+    */
 
     //Scope  definition
     if(text.contains("if")){
