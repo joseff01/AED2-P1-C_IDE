@@ -47,6 +47,25 @@ QStringList MainWindow::identifyStart(QString text)
     QString name;
     QString scope;
 
+    //While condition
+    if(text.contains("while")){
+        if(text.startsWith("{")){
+            this->setScopeNum(this->getScopeNum()+1);
+            text.remove(0,1);
+        }
+        //Getting condition
+        std::cout << text.toStdString() << std::endl;
+        QString condition = text.mid(text.indexOf("("),text.indexOf(")"));
+        std::cout << condition.toStdString() << std::endl;
+        text.remove(0,text.indexOf("=)")+1);
+        //Send condition to server
+        //Get  server response
+        bool serverResponse;
+        if(serverResponse){
+
+        }
+    }
+
     //Scope  definition
     if(text.contains("{")){
         this->setScopeNum(this->getScopeNum()+1);

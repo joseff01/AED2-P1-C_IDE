@@ -42,6 +42,8 @@ public:
     std::list<QStringList> getMainList();
     int getScopeNum();
     void setScopeNum(int scopeNum);
+    bool getWhileFlag();
+    void setWhileFlag(bool whileFlag);
     QStringList identifyStart(QString text);
 
 
@@ -66,11 +68,12 @@ private slots:
 private:
     Ui::MainWindow *ui;
     std::list<QStringList> mainList;
+    int scopeNum;
+    bool whileFlag;
     /**
      * @brief cout, shows in the terminal the instruction
      * @param newText; text introudced by the user
      */
-    int scopeNum;
     void cout(string newText);
     /**
      * @brief ramView, shows the memoru, value, name and quatity of references in the GUI
