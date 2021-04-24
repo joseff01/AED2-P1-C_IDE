@@ -19,12 +19,15 @@ using json = nlohmann::json;
 int sockfd;
 char buffer[255];
 void serverError(const char *msg);
+//Scope variables
+int lastScope;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     this->scopeNum = 0;
+    lastScope = this->getScopeNum();
     ui->setupUi(this);
 }
 
@@ -140,22 +143,6 @@ QStringList MainWindow::identifyStart(QString text)
         this->setScopeNum(this->getScopeNum()-1);
         text.remove("}");
         setTrueIf(true);
-        json j;
-        j["type"] = "NULL";
-        j["name"] ="NULL";
-        j["value"] = "NULL";
-        j["scope"] = "Ended";
-        j["ifFlag"] = "false";
-        memset(buffer,0,255);
-        string jsonString = j.dump();
-        QString display = QString::fromStdString(jsonString);
-        ui->terminalTextEdit->append("\n"+display);
-        strncpy(buffer, jsonString.c_str(),255);
-        int n = write(sockfd,buffer,strlen(buffer));
-        ui->applicationLogTextEdit->append("INFO       Sending Json to server");
-        if (n < 0){
-            serverError("ERROR writing to socket");
-        }readBuffer();
     } scope = QString::fromStdString(std::to_string(this->getScopeNum()));
 
     //Division by =
@@ -276,6 +263,25 @@ void MainWindow::on_nextButton_clicked()
             temp.pop_front();
             this->setMainList(temp);
             QString type = package.at(0);
+
+            if(lastScope > package.at(3).toInt()){
+                json j;
+                j["type"] = "NULL";
+                j["name"] ="NULL";
+                j["value"] = "NULL";
+                j["scope"] = "Ended";
+                j["ifFlag"] = "false";
+                memset(buffer,0,255);
+                string jsonString = j.dump();
+                QString display = QString::fromStdString(jsonString);
+                ui->terminalTextEdit->append("\n"+display);
+                strncpy(buffer, jsonString.c_str(),255);
+                int n = write(sockfd,buffer,strlen(buffer));
+                ui->applicationLogTextEdit->append("INFO       Sending Json to server");
+                if (n < 0){
+                serverError("ERROR writing to socket");
+                }readBuffer();
+            }
 
             json j;
             j["type"] = type.toStdString();
