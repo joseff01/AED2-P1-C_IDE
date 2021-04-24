@@ -32,8 +32,6 @@ public:
       @brief MainWindow, it's the desctructor class
         */
     ~MainWindow();
-
-    void processBuffer();
     void setMainList(std::list<QStringList> newList);
     /**
      * @brief getMainList, method used to get a list of qstringlists
@@ -67,6 +65,8 @@ private slots:
      * @brief on_deleteButton_clicked, deletes the previous input made by the user
      */
     void on_deleteButton_clicked();
+
+    void on_pushButton_2_clicked();
 
 private:
     Ui::MainWindow *ui;
