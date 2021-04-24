@@ -140,6 +140,22 @@ QStringList MainWindow::identifyStart(QString text)
         this->setScopeNum(this->getScopeNum()-1);
         text.remove("}");
         setTrueIf(true);
+        json j;
+        j["type"] = "NULL";
+        j["name"] ="NULL";
+        j["value"] = "NULL";
+        j["scope"] = "Ended";
+        j["ifFlag"] = "false";
+        memset(buffer,0,255);
+        string jsonString = j.dump();
+        QString display = QString::fromStdString(jsonString);
+        ui->terminalTextEdit->append("\n"+display);
+        strncpy(buffer, jsonString.c_str(),255);
+        int n = write(sockfd,buffer,strlen(buffer));
+        ui->applicationLogTextEdit->append("INFO       Sending Json to server");
+        if (n < 0){
+            serverError("ERROR writing to socket");
+        }readBuffer();
     } scope = QString::fromStdString(std::to_string(this->getScopeNum()));
 
     //Division by =
@@ -224,6 +240,7 @@ void MainWindow::ramView(QString memory, QString value, QString name, QString re
 void MainWindow::processBuffer(){
     if (buffer[0] == '{')
     {
+
         ui->applicationLogTextEdit->append("WARN    parsing message from the server");
         json jsonBuffer = json::parse(buffer);
         QString value = QString::fromStdString(jsonBuffer["value"]);
