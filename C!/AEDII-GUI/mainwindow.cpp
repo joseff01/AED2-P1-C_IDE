@@ -224,34 +224,44 @@ void MainWindow::ramView(QString memory, QString value, QString name, QString re
     ui->referenceTextEdit->append(reference);
 }
 
-void MainWindow::processBuffer(){
-    if (buffer[0] == '{')
-    {
-
-        ui->applicationLogTextEdit->append("WARN    parsing message from the server");
-        json jsonBuffer = json::parse(buffer);
-        QString value = QString::fromStdString(jsonBuffer["value"]);
-        QString name = QString::fromStdString(jsonBuffer["name"]);
-        QString memory = QString::fromStdString(jsonBuffer["adress"]);
-        QString reference = QString::fromStdString(jsonBuffer["referenceCounter"]);
-        ramView(memory, value, name, reference);
-     }
-   else
-   {
-    string newstr(buffer);
-    QString str = QString::fromStdString(newstr);
-    ui->applicationLogTextEdit->append(str);
-    on_deleteButton_clicked();
-   }
-}
-
 void MainWindow::readBuffer(){
     ui->applicationLogTextEdit->append("INFO       message recieved from server");
     memset(buffer, 0, 255);
     int n = read(sockfd,buffer,255);
     if (n < 0) serverError("ERROR reading from socket");
 
-    processBuffer();
+    if (buffer[0] == '{')
+    {
+        ui->applicationLogTextEdit->append("WARN    parsing message from the server");
+        json jsonBuffer = json::parse(buffer);
+        QString name = QString::fromStdString(jsonBuffer["name"]);
+        QString value = QString::fromStdString(jsonBuffer["value"]);
+        QString text = ui->nameTextEdit->toPlainText();
+        QStringList textList = text.split("\n");
+
+        if(textList.contains(name)){
+            QString valueText= ui->valueTextEdit->toPlainText();
+            QStringList valueList = valueText.split("\n");
+            ui->terminalTextEdit->setText(value);
+            valueList[textList.indexOf(name)]= value;
+            QString temp =valueList.join("\n");
+            ui->valueTextEdit->setText(temp);
+
+
+        }else{
+            QString memory = QString::fromStdString(jsonBuffer["adress"]);
+            QString reference = QString::fromStdString(jsonBuffer["referenceCounter"]);
+            ramView(memory, value, name, reference);
+        }
+    }
+    else{
+        string newstr(buffer);
+        QString str = QString::fromStdString(newstr);
+        ui->applicationLogTextEdit->append(str);
+        on_deleteButton_clicked();
+    }
+
+
 }
 
 void MainWindow::on_nextButton_clicked()
@@ -384,5 +394,11 @@ void MainWindow::on_deleteButton_clicked()
     ui->valueTextEdit->setText("Value");
     ui->nameTextEdit->setText("Name");
     ui->referenceTextEdit->setText("Reference");
+
+}
+
+void MainWindow::on_pushButton_2_clicked()
+{
+
 
 }
