@@ -45,7 +45,10 @@ public:
     bool getWhileFlag();
     void setWhileFlag(bool whileFlag);
     QStringList identifyStart(QString text);
-
+    bool getTrueIf();
+    void setTrueIf(bool flag);
+    bool getStopFlag();
+    void setStopFlag(bool flag);
 
 private slots:
     /**
@@ -70,10 +73,13 @@ private:
     std::list<QStringList> mainList;
     int scopeNum;
     bool whileFlag;
-    /**
+    bool trueIf = true;
+    bool stopFlag = false;
+       /**
      * @brief cout, shows in the terminal the instruction
      * @param newText; text introudced by the user
      */
+    
     void cout(string newText);
     /**
      * @brief ramView, shows the memoru, value, name and quatity of references in the GUI
@@ -84,5 +90,6 @@ private:
      */
     void ramView(QString memory, QString value, QString name, QString reference);
     void readBuffer();
+    void ifAndElse(QString text);
 };
 #endif // MAINWINDOW_H
