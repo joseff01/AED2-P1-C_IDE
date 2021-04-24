@@ -264,13 +264,14 @@ void MainWindow::on_nextButton_clicked()
             this->setMainList(temp);
             QString type = package.at(0);
 
+            json j;
+            j["type"] = "NULL";
+            j["name"] ="NULL";
+            j["value"] = "NULL";
+            j["ifFlag"] = "false";
+
             if(lastScope > package.at(3).toInt()){
-                json j;
-                j["type"] = "NULL";
-                j["name"] ="NULL";
-                j["value"] = "NULL";
                 j["scope"] = "Ended";
-                j["ifFlag"] = "false";
                 memset(buffer,0,255);
                 string jsonString = j.dump();
                 QString display = QString::fromStdString(jsonString);
@@ -281,9 +282,21 @@ void MainWindow::on_nextButton_clicked()
                 if (n < 0){
                 serverError("ERROR writing to socket");
                 }readBuffer();
-            } lastScope = package.at(3).toInt();
+            } else if(lastScope < package.at(3).toInt()){
+                j["scope"] = "Started ";
+                memset(buffer,0,255);
+                string jsonString = j.dump();
+                QString display = QString::fromStdString(jsonString);
+                ui->terminalTextEdit->append("\n"+display);
+                strncpy(buffer, jsonString.c_str(),255);
+                int n = write(sockfd,buffer,strlen(buffer));
+                ui->applicationLogTextEdit->append("INFO       Sending Json to server");
+                if (n < 0){
+                serverError("ERROR writing to socket");
+                }readBuffer();
+            }lastScope = package.at(3).toInt();
 
-            json j;
+            j;
             j["type"] = type.toStdString();
             j["name"] = package.at(1).toStdString();
             j["value"] = package.at(2).toStdString();
