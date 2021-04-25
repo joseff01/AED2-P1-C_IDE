@@ -99,6 +99,8 @@ QStringList MainWindow::identifyStart(QString text)
     QString type;
     QString name;
     QString scope;
+    QString contains = "Null";
+    QString endScope = "false";
 
     //While condition
     /*
@@ -129,7 +131,7 @@ QStringList MainWindow::identifyStart(QString text)
     } else if(text.contains("}")){
         this->setScopeNum(this->getScopeNum()-1);
         text.remove("}");
-        setTrueIf(true);
+        endScope = "true";
     } scope = QString::fromStdString(std::to_string(this->getScopeNum()));
 
 
@@ -165,9 +167,16 @@ QStringList MainWindow::identifyStart(QString text)
         type = "NULL";
         name = nameType.remove(" ").remove("\n");
     }
+    if (nameType.contains("if")){
+        contains = "if";
+    }
+    if (nameType.contains("else")){
+        contains = "else";
+    }
+
 
     QStringList package;
-    package << type << name << value << scope;;
+    package << type << name << value << scope<<contains<<endScope;;
     return package;
 }
 
@@ -259,52 +268,56 @@ void MainWindow::readBuffer(){
 
 void MainWindow::on_nextButton_clicked()
 {
+    if(!this->getMainList().empty()){
+        QStringList package = this->getMainList().front();
+        std::list<QStringList> temp = this->getMainList();
+        temp.pop_front();
+        this->setMainList(temp);
+        QString type = package.at(0);
+        QString name = package.at(1);
+        QString cont = package.at(4);
+        QString endScope = package.at(5);
 
-    if(!getStopFlag()){
-        if(!this->getMainList().empty()){
-            QStringList package = this->getMainList().front();
-            std::list<QStringList> temp = this->getMainList();
-            temp.pop_front();
-            this->setMainList(temp);
-            QString type = package.at(0);
-
-            if(type.contains("if")){
-                type.remove("if");
-                QStringList ifSplit = type.split(")");
-                QString param = ifSplit.at(0);
-                ifAndElse(param);
-                type = ifSplit.at(1);
+        if(cont.contains("if")){
+            name.remove("if");
+            QStringList ifSplit = name.split(")");
+            QString param = ifSplit.at(0);
+            ifAndElse(param);
+            package[1]= ifSplit.at(1);
+        }
+        if(cont.contains("else")){
+            name.remove("else").remove("{").remove("}");
+            package[1]= name;
+            if(getTrueIf()){
+                setTrueIf(false);
             }
-            if(type.contains("else")){
-                type.remove("else").remove("{");
-                if(getTrueIf()){
-                    setTrueIf(false);
-                }
-                else{
-                    setTrueIf(true);
-                }
+            else{
+                setTrueIf(true);
             }
+        }
+        if(endScope.contains("true")){ setTrueIf(true);}
 
-            if(getTrueIf())
-            {
-                json j;
-                j["type"] = "NULL";
-                j["name"] = "NULL";
-                j["value"] = "NULL";
-                j["ifFlag"] = "false";
+        if(getTrueIf())
+        {
+            json j;
+            j["type"] = "NULL";
+            j["name"] = "NULL";
+            j["value"] = "NULL";
+            j["ifFlag"] = "false";
 
-                if(lastScope > package.at(3).toInt()){
-                    j["scope"] = "Ended";
-                    memset(buffer,0,255);
-                    string jsonString = j.dump();
-                    QString display = QString::fromStdString(jsonString);
-                    ui->terminalTextEdit->append("\n"+display);
-                    strncpy(buffer, jsonString.c_str(),255);
-                    int n = write(sockfd,buffer,strlen(buffer));
-                    ui->applicationLogTextEdit->append("INFO       Sending Json to server");
-                    if (n < 0){
+            if(lastScope > package.at(3).toInt()){
+                j["scope"] = "Ended";
+                memset(buffer,0,255);
+                string jsonString = j.dump();
+                QString display = QString::fromStdString(jsonString);
+                ui->terminalTextEdit->append("\n"+display);
+                strncpy(buffer, jsonString.c_str(),255);
+                int n = write(sockfd,buffer,strlen(buffer));
+                ui->applicationLogTextEdit->append("INFO       Sending Json to server");
+                if (n < 0){
                     serverError("ERROR writing to socket");
-                    }readBuffer();
+                }readBuffer();
+
                 } else if(lastScope < package.at(3).toInt()){
                     j["scope"] = "Started";
                     memset(buffer,0,255);
@@ -358,9 +371,6 @@ void MainWindow::on_nextButton_clicked()
             }
         }
         else {ui->pushButton->setDisabled(false);}
-    }else{
-        on_deleteButton_clicked();
-    }
 }
 
 void MainWindow::cout(string newText){
