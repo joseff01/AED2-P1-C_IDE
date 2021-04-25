@@ -285,13 +285,31 @@ void MainWindow::on_nextButton_clicked()
                 }
             }
 
-            if(getTrueIf())
-            {
-                json j;
-                j["type"] = "NULL";
-                j["name"] ="NULL";
-                j["value"] = "NULL";
-                j["ifFlag"] = "false";
+            if(lastScope > package.at(3).toInt()){
+                j["scope"] = "Ended";
+                memset(buffer,0,255);
+                string jsonString = j.dump();
+                QString display = QString::fromStdString(jsonString);
+                ui->terminalTextEdit->append("\n"+display);
+                strncpy(buffer, jsonString.c_str(),255);
+                int n = write(sockfd,buffer,strlen(buffer));
+                ui->applicationLogTextEdit->append("INFO       Sending Json to server");
+                if (n < 0){
+                serverError("ERROR writing to socket");
+                }readBuffer();
+            } else if(lastScope < package.at(3).toInt()){
+                j["scope"] = "Started";
+                memset(buffer,0,255);
+                string jsonString = j.dump();
+                QString display = QString::fromStdString(jsonString);
+                ui->terminalTextEdit->append("\n"+display);
+                strncpy(buffer, jsonString.c_str(),255);
+                int n = write(sockfd,buffer,strlen(buffer));
+                ui->applicationLogTextEdit->append("INFO       Sending Json to server");
+                if (n < 0){
+                serverError("ERROR writing to socket");
+                }
+            }lastScope = package.at(3).toInt();
 
                 if(lastScope > package.at(3).toInt()){
                     j["scope"] = "Ended";

@@ -197,6 +197,7 @@ void analizeBuffer(){
             jsonBuffer["value"] = eliminatedVariableNames;
             string sendJson = jsonBuffer.dump();
             cout << sendJson << endl;
+
             /*
             memset(buffer,0,255);
             strncpy(buffer, sendJson.c_str(),255);
@@ -206,6 +207,13 @@ void analizeBuffer(){
             }
             */
             return;
+        }
+        if (jsonBuffer["scope"] == "Started"){
+            currentScope = currentScope + 1;
+            return;
+        }
+        if (jsonBuffer["ifFlag"] == "Started"){
+            cout << "it worked" << endl;
         }
         bool declarationFlag = false;
         if (jsonBuffer["value"] == "NULL"){
@@ -674,7 +682,6 @@ void analizeBuffer(){
         }
         string variableScopeString = jsonBuffer["scope"];
         int variableScope = stoi(variableScopeString);
-        currentScope = variableScope;
         cout << variableScope << endl;
         string variableName = jsonBuffer["name"];
         string variableType = jsonBuffer["type"];
