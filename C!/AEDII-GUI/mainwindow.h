@@ -91,5 +91,6 @@ private:
     void ramView(QString memory, QString value, QString name, QString reference);
     void readBuffer();
     void ifAndElse(QString text);
+    bool identifyIfandElse(QString text);
 };
 #endif // MAINWINDOW_H
