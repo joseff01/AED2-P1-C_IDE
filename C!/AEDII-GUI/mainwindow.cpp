@@ -60,7 +60,7 @@ void MainWindow::ifAndElse(QString text){
     string jsonString = sendText.dump();
     QString display = QString::fromStdString(jsonString);
     ui->terminalTextEdit->append("\n"+display);
-    /*
+
     strncpy(buffer, jsonString.c_str(),255);
     int n = write(sockfd,buffer,strlen(buffer));
     ui->applicationLogTextEdit->append("INFO       Sending Json verification to server");
@@ -72,7 +72,7 @@ void MainWindow::ifAndElse(QString text){
     int num = read(sockfd,buffer,255);
     if (num < 0) serverError("ERROR reading from socket");
 
-    ui->applicationLogTextEdit->append("WARN    parsing message from the server")
+    ui->applicationLogTextEdit->append("WARN    parsing message from the server");
     if (buffer[0] == '{')
     {
         json jsonBuffer = json::parse(buffer);
@@ -89,7 +89,7 @@ void MainWindow::ifAndElse(QString text){
         string newstr(buffer);
         QString str = QString::fromStdString(newstr);
         ui->applicationLogTextEdit->append(str);
-    }*/
+    }
 }
 
 QStringList MainWindow::identifyStart(QString text)

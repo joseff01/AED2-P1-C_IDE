@@ -212,8 +212,9 @@ void analizeBuffer(){
             currentScope = currentScope + 1;
             return;
         }
-        if (jsonBuffer["ifFlag"] == "Started"){
+        if (jsonBuffer["ifFlag"] == "true"){
             cout << "it worked" << endl;
+            return;
         }
         bool declarationFlag = false;
         if (jsonBuffer["value"] == "NULL"){
