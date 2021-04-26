@@ -306,9 +306,7 @@ void MainWindow::on_nextButton_clicked()
         QString cont = package.at(4);
         QString endScope = package.at(5);
 
-        if(cont != "Null"){
-            ifAndElse(cont);
-        }
+
         if(cont.contains("else")){
             name.remove("else").remove("{").remove("}");
             package[1]= name;
@@ -318,6 +316,11 @@ void MainWindow::on_nextButton_clicked()
             else{
                 setTrueIf(true);
             }
+        }
+        else if(cont != "Null"){
+
+            ifAndElse(cont);
+
         }
         if(endScope.contains("true")){ setTrueIf(true);}
 

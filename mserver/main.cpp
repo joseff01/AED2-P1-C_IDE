@@ -114,31 +114,37 @@ bool checkBooleanValueOfExpression(string stringExpression){
         QStringList split = qExpression.split("==");
         auto a = checkNumericalValueOfExpression(split.at(0).toStdString());
         auto b = checkNumericalValueOfExpression(split.at(1).toStdString());
+        cout << "a: " << a << "    b: " << b << endl;
         return (a == b);
     } else if(qExpression.contains("!=")){
-        QStringList split = qExpression.split("==");
+        QStringList split = qExpression.split("!=");
         auto a = checkNumericalValueOfExpression(split.at(0).toStdString());
         auto b = checkNumericalValueOfExpression(split.at(1).toStdString());
+        cout << "a: " << a << "    b: " << b << endl;
         return (a != b);
-    } else if(qExpression.contains("<")){
-        QStringList split = qExpression.split("==");
-        auto a = checkNumericalValueOfExpression(split.at(0).toStdString());
-        auto b = checkNumericalValueOfExpression(split.at(1).toStdString());
-        return (a < b);
-    } else if(qExpression.contains(">")){
-        QStringList split = qExpression.split("==");
-        auto a = checkNumericalValueOfExpression(split.at(0).toStdString());
-        auto b = checkNumericalValueOfExpression(split.at(1).toStdString());
-        return (a > b);
-    } else if(qExpression.contains(">=")){
-        QStringList split = qExpression.split("==");
-        auto a = checkNumericalValueOfExpression(split.at(0).toStdString());
-        auto b = checkNumericalValueOfExpression(split.at(1).toStdString());
-        return (a >= b);
     } else if(qExpression.contains("<=")){
-        QStringList split = qExpression.split("==");
+        QStringList split = qExpression.split("<=");
         auto a = checkNumericalValueOfExpression(split.at(0).toStdString());
         auto b = checkNumericalValueOfExpression(split.at(1).toStdString());
+        cout << "a: " << a << "    b: " << b << endl;
+        return (a < b);
+    } else if(qExpression.contains(">=")){
+        QStringList split = qExpression.split(">=");
+        auto a = checkNumericalValueOfExpression(split.at(0).toStdString());
+        auto b = checkNumericalValueOfExpression(split.at(1).toStdString());
+        cout << "a: " << a << "    b: " << b << endl;
+        return (a > b);
+    } else if(qExpression.contains(">")){
+        QStringList split = qExpression.split(">");
+        auto a = checkNumericalValueOfExpression(split.at(0).toStdString());
+        auto b = checkNumericalValueOfExpression(split.at(1).toStdString());
+        cout << "a: " << a << "    b: " << b << endl;
+        return (a >= b);
+    } else if(qExpression.contains("<")){
+        QStringList split = qExpression.split("<");
+        auto a = checkNumericalValueOfExpression(split.at(0).toStdString());
+        auto b = checkNumericalValueOfExpression(split.at(1).toStdString());
+        cout << "a: " << a << "    b: " << b << endl;
         return (a <= b);
     }
 }
@@ -183,7 +189,9 @@ double checkNumericalValueOfExpression(string stringExpression){
            if((std::istringstream(sExpression) >> ld >> std::ws).eof()){
                return stod(sExpression);
            } else{
+               cout << sExpression << endl;
                string variableValue = getVariableValue(sExpression);
+               cout << variableValue << endl;
                return stod(variableValue);
            }
        }
@@ -263,7 +271,23 @@ void analizeBuffer(){
             return;
         }
         if (jsonBuffer["ifFlag"] == "true"){
-            cout << "it worked" << endl;
+            cout << jsonBuffer["value"] << endl;
+            bool booleanValue = checkBooleanValueOfExpression(jsonBuffer["value"]);
+            cout << booleanValue << endl;
+            if (booleanValue){
+                jsonBuffer["value"] = "true";
+            }else{
+                jsonBuffer["value"] = "false";
+            }
+            string sendJson = jsonBuffer.dump();
+            cout << sendJson << endl;
+            memset(buffer,0,255);
+            strncpy(buffer, sendJson.c_str(),255);
+            int n = write(newsockfd,buffer,strlen(buffer));
+            if (n < 0){
+                error("ERROR writing to socket");
+            }
+
             return;
         }
         bool declarationFlag = false;
@@ -367,7 +391,6 @@ void analizeBuffer(){
                             long longValueToAssign = valueToAssign;
                             jsonBuffer["value"] = to_string(longValueToAssign);
                         }
-                        jsonBuffer["value"] = to_string(valueToAssign);
                         string sendJson = jsonBuffer.dump();
                         memset(buffer,0,255);
                         strncpy(buffer, sendJson.c_str(),255);
