@@ -30,6 +30,8 @@ int currentScope = 0;
 map<string,int> nameToOffsetMap;
 map<string,string> nameToTypeMap;
 map<string,int> nameToScopeMap;
+map<string,vector<string>> structToTypesVectorMap;
+map<string,vector<string>> structToNamesVectorMap;
 
 void bindingProcess(int* sockfd, int* portno, struct sockaddr_in* serv_addr){
 
@@ -51,6 +53,8 @@ void resetMemory(){
     nameToOffsetMap.clear();
     nameToTypeMap.clear();
     nameToScopeMap.clear();
+    structToNamesVectorMap.clear();
+    structToTypesVectorMap.clear();
     mainOffset = 0;
     currentScope = 0;
     free(startAdress);
@@ -249,13 +253,33 @@ void analizeBuffer(){
     if (buffer[0] == '{'){
         void* returningAdress;
         json jsonBuffer = json::parse(buffer);
+        if (jsonBuffer["struct"] == true){
+            if(structToNamesVectorMap.count(jsonBuffer["name"]) > 0){
+                string invalidName = jsonBuffer["name"];
+                string storageError ="ERROR   struct " + invalidName + " has already been declared previously.";
+                cout << storageError << endl;
+                memset(buffer,0,255);
+                strncpy(buffer, storageError.c_str(),255);
+                int n = write(newsockfd,buffer,strlen(buffer));
+                if (n < 0){
+                    error("ERROR writing to socket");
+                }
+                resetMemory();
+                return;
+            }
+            vector<string> vectorAttributeTypes = jsonBuffer["type"];
+            vector<string> vectorAttributeNames = jsonBuffer["value"];
+            structToNamesVectorMap.insert(pair<string, vector<string>>(jsonBuffer["name"],vectorAttributeNames));
+            structToTypesVectorMap.insert(pair<string, vector<string>>(jsonBuffer["name"],vectorAttributeTypes));
+
+            return;
+        }
         if (jsonBuffer["scope"] == "Ended"){
             vector<string> eliminatedVariableNames = removeScopeMemory();
             jsonBuffer["value"] = eliminatedVariableNames;
             jsonBuffer["adress"]= "freeing space";
             string sendJson = jsonBuffer.dump();
             cout << sendJson << endl;
-
 
             memset(buffer,0,255);
             strncpy(buffer, sendJson.c_str(),255);
@@ -271,30 +295,95 @@ void analizeBuffer(){
             return;
         }
         if (jsonBuffer["ifFlag"] == "true"){
-            cout << jsonBuffer["value"] << endl;
-            bool booleanValue = checkBooleanValueOfExpression(jsonBuffer["value"]);
-            cout << booleanValue << endl;
-            if (booleanValue){
-                jsonBuffer["value"] = "true";
-            }else{
-                jsonBuffer["value"] = "false";
+            try{
+                cout << jsonBuffer["value"] << endl;
+                bool booleanValue = checkBooleanValueOfExpression(jsonBuffer["value"]);
+                cout << booleanValue << endl;
+                if (booleanValue){
+                    jsonBuffer["value"] = "true";
+                }else{
+                    jsonBuffer["value"] = "false";
+                }
+                string sendJson = jsonBuffer.dump();
+                cout << sendJson << endl;
+                memset(buffer,0,255);
+                strncpy(buffer, sendJson.c_str(),255);
+                int n = write(newsockfd,buffer,strlen(buffer));
+                if (n < 0){
+                    error("ERROR writing to socket");
+                }
+            } catch( exception exerror ) {
+                string strChar(exerror.what());
+                string mainError = "ERROR   " + strChar;
+                cout << mainError << endl;
+                string storageError ="ERROR   " + (string) jsonBuffer["value"] + " is not a valid expression.";
+                cout << storageError << endl;
+                memset(buffer,0,255);
+                strncpy(buffer, storageError.c_str(),255);
+                int n = write(newsockfd,buffer,strlen(buffer));
+                if (n < 0){
+                    error("ERROR writing to socket");
+                }
+                resetMemory();
+                return;
             }
-            string sendJson = jsonBuffer.dump();
-            cout << sendJson << endl;
-            memset(buffer,0,255);
-            strncpy(buffer, sendJson.c_str(),255);
-            int n = write(newsockfd,buffer,strlen(buffer));
-            if (n < 0){
-                error("ERROR writing to socket");
-            }
-
             return;
         }
         bool declarationFlag = false;
         if (jsonBuffer["value"] == "NULL"){
             declarationFlag = true;
         }
-        if (jsonBuffer["type"] == "NULL"){
+
+        if(structToNamesVectorMap.count(jsonBuffer["type"]) > 0){
+            vector<string> variableNames = structToNamesVectorMap[jsonBuffer["type"]];
+            vector<string> variableTypes = structToTypesVectorMap[jsonBuffer["type"]];
+            vector<string> variableAdresses;
+            vector<string> variableReferenceCounter;
+            int variableAmount = variableNames.size();
+            for (int i = 0; i < variableAmount; i++){
+                char* variableAdress = (char*) startAdress;
+                variableAdress = variableAdress + mainOffset;
+                int variableOffset = mainOffset;
+                if (variableTypes[i] == "int"){
+                    mainOffset = mainOffset + 4;
+                } else if (variableTypes[i] == "float"){
+                    mainOffset = mainOffset + 4;
+                } else if (variableTypes[i] == "double"){
+                    mainOffset = mainOffset + 8;
+                } else if (variableTypes[i] == "long"){
+                    mainOffset = mainOffset + 4;
+                } else if (variableTypes[i] == "char"){
+                    mainOffset = mainOffset + 1;
+                } else{
+                    error("struct with invalid attribute type");
+                }
+                string variableScopeString = jsonBuffer["scope"];
+                int variableScope = stoi(variableScopeString);
+                cout << "scope: " <<variableScope << endl;
+                string variableName = (string) jsonBuffer["name"] + "." + variableNames[i];
+                string variableType = variableTypes[i];
+                nameToOffsetMap.insert(pair<string, int>(variableName,variableOffset));
+                nameToTypeMap.insert(pair<string, string>(variableName,variableType));
+                nameToScopeMap.insert(pair<string,int>(variableName,variableScope));
+                stringstream ss;
+                ss << variableAdress;
+                string returningAdressString = ss.str();
+                jsonBuffer["referenceCounter"] = "1";
+                variableAdresses.push_back(returningAdressString);
+                variableReferenceCounter.push_back("1");
+            }
+            jsonBuffer["adress"] = variableAdresses;
+            jsonBuffer["referenceCounter"] = variableReferenceCounter;
+            string sendJson = jsonBuffer.dump();
+            memset(buffer,0,255);
+            strncpy(buffer, sendJson.c_str(),255);
+            int n = write(newsockfd,buffer,strlen(buffer));
+            if (n < 0){
+                error("ERROR writing to socket");
+            }
+            return;
+
+        } else if (jsonBuffer["type"] == "NULL"){
             if(nameToOffsetMap.count(jsonBuffer["name"]) > 0){
                 string variableType = nameToTypeMap[jsonBuffer["name"]];
                 if (variableType == "char"){
