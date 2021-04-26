@@ -123,6 +123,14 @@ QStringList MainWindow::identifyStart(QString text)
     }
     */
 
+    //If definition
+    if (text.contains("if")){
+        name.remove("if("); //{int  a = 0;
+        QStringList ifSplit = name.split(")");
+        contains = ifSplit.at(0);
+        text = ifSplit.at(1);
+    }
+
     //Scope  definition
 
     if(text.contains("{")){
@@ -133,7 +141,6 @@ QStringList MainWindow::identifyStart(QString text)
         text.remove("}");
         endScope = "true";
     } scope = QString::fromStdString(std::to_string(this->getScopeNum()));
-
 
     //Division by =
     if(text.contains("=",Qt::CaseSensitive)){
@@ -166,9 +173,6 @@ QStringList MainWindow::identifyStart(QString text)
     } else {
         type = "NULL";
         name = nameType.remove(" ").remove("\n");
-    }
-    if (nameType.contains("if")){
-        contains = "if";
     }
     if (nameType.contains("else")){
         contains = "else";
@@ -279,11 +283,7 @@ void MainWindow::on_nextButton_clicked()
         QString endScope = package.at(5);
 
         if(cont.contains("if")){
-            name.remove("if");
-            QStringList ifSplit = name.split(")");
-            QString param = ifSplit.at(0);
-            ifAndElse(param);
-            package[1]= ifSplit.at(1);
+            ifAndElse(cont);
         }
         if(cont.contains("else")){
             name.remove("else").remove("{").remove("}");
