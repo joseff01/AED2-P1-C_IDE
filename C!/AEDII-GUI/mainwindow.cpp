@@ -175,9 +175,10 @@ QStringList MainWindow::identifyStart(QString text)
     } else if(nameType.contains("float",Qt::CaseSensitive)){
         type = "float";
         name = nameType.remove("float",Qt::CaseSensitive).remove(" ").remove("\n");
-    } else {
+    }else {
         type = "NULL";
         name = nameType.remove(" ").remove("\n");
+
     }
     if (nameType.contains("else")){
         contains = "else";
@@ -300,6 +301,11 @@ void MainWindow::readBuffer(){
 void MainWindow::structJson(std::list<QStringList> structList, string structName){
     vector<string> types;
     vector<string> values;
+
+    QStringList structNameList = this->getStructName();
+    structNameList.push_back(QString::fromStdString(structName));
+    setStructName(structNameList);
+
     for(QStringList package:structList){
         if(!(package.at(0)=="NULL"&& package.at(1)=="")){
             types.push_back(package.at(0).toStdString());
@@ -344,13 +350,18 @@ void MainWindow::on_nextButton_clicked()
             std::list<QStringList> structList;
             structList.push_back(package);
 
+            QStringList currentPackage = this->getMainList().front();
+            currentScope = currentPackage.at(5);
+
             while(currentScope != "true"){
-                QStringList currentPackage = this->getMainList().front();
+
                 std::list<QStringList> tempList = this->getMainList();
                 tempList.pop_front();
                 this->setMainList(tempList);
                 structList.push_back(currentPackage);
+                QStringList currentPackage = this->getMainList().front();
                 currentScope = currentPackage.at(5);
+
             } structJson(structList,structName.toStdString());
         }else{
             if(cont.contains("else")){
@@ -409,6 +420,17 @@ void MainWindow::on_nextButton_clicked()
                 j["value"] = package.at(2).toStdString();
                 j["scope"] = package.at(3).toStdString();
                 j["ifFlag"] = "false";
+
+                for(QString structName:getStructName()){
+                    if(package.at(1).contains(structName)){
+                        QString newStructName = package.at(1);
+                        j["name"] = newStructName.remove(structName).toStdString();
+                        j["type"] = structName.toStdString();
+                        ui->applicationLogTextEdit->setText(newStructName.remove(structName));
+                        ui->applicationLogTextEdit->append(structName);
+
+                    }
+                }
 
                 if(type.contains("int",Qt::CaseSensitive)){
                     j["size"] = 4;
@@ -511,6 +533,8 @@ void MainWindow::on_pushButton_2_clicked()
 
 }
 
+QStringList MainWindow::getStructName(){return this->structNames;}
+void MainWindow::setStructName(QStringList list){this->structNames=list;}
 bool MainWindow::getTrueIf(){return this->trueIf;}
 void MainWindow::setTrueIf(bool flag){this->trueIf = flag;}
 bool MainWindow::getStopFlag(){return this->stopFlag;}

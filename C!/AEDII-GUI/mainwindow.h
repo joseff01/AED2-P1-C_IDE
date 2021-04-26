@@ -47,6 +47,8 @@ public:
     void setTrueIf(bool flag);
     bool getStopFlag();
     void setStopFlag(bool flag);
+    QStringList getStructName();
+    void setStructName(QStringList list);
 
 private slots:
     /**
@@ -71,6 +73,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     std::list<QStringList> mainList;
+    QStringList structNames;
     int scopeNum;
     bool whileFlag;
     bool trueIf = true;
