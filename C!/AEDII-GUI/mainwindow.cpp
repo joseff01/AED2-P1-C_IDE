@@ -125,8 +125,8 @@ QStringList MainWindow::identifyStart(QString text)
 
     //If definition
     if (text.contains("if")){
-        name.remove("if("); //{int  a = 0;
-        QStringList ifSplit = name.split(")");
+        text.remove("if("); //x == 1      {int a = 0
+        QStringList ifSplit = text.split(")");
         contains = ifSplit.at(0);
         text = ifSplit.at(1);
     }
@@ -282,7 +282,7 @@ void MainWindow::on_nextButton_clicked()
         QString cont = package.at(4);
         QString endScope = package.at(5);
 
-        if(cont.contains("if")){
+        if(cont != "Null"){
             ifAndElse(cont);
         }
         if(cont.contains("else")){
