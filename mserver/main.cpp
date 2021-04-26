@@ -94,6 +94,55 @@ string getVariableValue(string variableName){
     }
 }
 
+double checkNumericalValueOfExpression(string stringExpression);
+bool checkBooleanValueOfExpression(string stringExpression){
+    QString qExpression = QString::fromStdString(stringExpression);
+    qExpression.remove(" ");
+    if(qExpression.contains("&&")){
+        QStringList split = qExpression.split("&&");
+        bool value = true;
+        for(QString element : split){
+            value = (value && checkBooleanValueOfExpression(element.toStdString()));
+        } return value;
+    } else if(qExpression.contains("||")){
+        QStringList split = qExpression.split("||");
+        bool value = false;
+        for(QString element : split){
+            value = (value && checkBooleanValueOfExpression(element.toStdString()));
+        } return value;
+    } else if(qExpression.contains("==")){
+        QStringList split = qExpression.split("==");
+        auto a = checkNumericalValueOfExpression(split.at(0).toStdString());
+        auto b = checkNumericalValueOfExpression(split.at(1).toStdString());
+        return (a == b);
+    } else if(qExpression.contains("!=")){
+        QStringList split = qExpression.split("==");
+        auto a = checkNumericalValueOfExpression(split.at(0).toStdString());
+        auto b = checkNumericalValueOfExpression(split.at(1).toStdString());
+        return (a != b);
+    } else if(qExpression.contains("<")){
+        QStringList split = qExpression.split("==");
+        auto a = checkNumericalValueOfExpression(split.at(0).toStdString());
+        auto b = checkNumericalValueOfExpression(split.at(1).toStdString());
+        return (a < b);
+    } else if(qExpression.contains(">")){
+        QStringList split = qExpression.split("==");
+        auto a = checkNumericalValueOfExpression(split.at(0).toStdString());
+        auto b = checkNumericalValueOfExpression(split.at(1).toStdString());
+        return (a > b);
+    } else if(qExpression.contains(">=")){
+        QStringList split = qExpression.split("==");
+        auto a = checkNumericalValueOfExpression(split.at(0).toStdString());
+        auto b = checkNumericalValueOfExpression(split.at(1).toStdString());
+        return (a >= b);
+    } else if(qExpression.contains("<=")){
+        QStringList split = qExpression.split("==");
+        auto a = checkNumericalValueOfExpression(split.at(0).toStdString());
+        auto b = checkNumericalValueOfExpression(split.at(1).toStdString());
+        return (a <= b);
+    }
+}
+
 double checkNumericalValueOfExpression(string stringExpression){
     QString qExpression = QString::fromStdString(stringExpression);
        qExpression.remove(" ");
