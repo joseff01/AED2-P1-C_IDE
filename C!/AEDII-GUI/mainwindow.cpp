@@ -178,7 +178,6 @@ QStringList MainWindow::identifyStart(QString text)
         contains = "else";
     }
 
-
     QStringList package;
     package << type << name << value << scope<<contains<<endScope;;
     return package;
@@ -201,21 +200,13 @@ void MainWindow::on_pushButton_clicked()
         line = line.remove("\n").remove(" ");
         if (line != "")
         {
-            //if(identifyIfandElse(line)){;
-                package = identifyStart(line);
-                mainList.push_back(package);
-            //}
-
+            package = identifyStart(line);
+            mainList.push_back(package);
         }
     }
     this->setMainList(mainList);
 
 }
-void MainWindow::setMainList(std::list<QStringList> newList){this->mainList = newList;}
-std::list<QStringList> MainWindow::getMainList(){ return this->mainList;}
-
-int MainWindow::getScopeNum(){return this->scopeNum;}
-void MainWindow::setScopeNum(int scopeNum){this->scopeNum = scopeNum;}
 
 void serverError(const char *msg)
 {
@@ -241,20 +232,53 @@ void MainWindow::readBuffer(){
         ui->applicationLogTextEdit->append("WARN    parsing message from the server");
         json jsonBuffer = json::parse(buffer);
         QString name = QString::fromStdString(jsonBuffer["name"]);
-        QString value = QString::fromStdString(jsonBuffer["value"]);
+        QString memory = QString::fromStdString(jsonBuffer["adress"]);
         QString text = ui->nameTextEdit->toPlainText();
         QStringList textList = text.split("\n");
 
         if(textList.contains(name)){
+            QString value = QString::fromStdString(jsonBuffer["value"]);
             QString valueText= ui->valueTextEdit->toPlainText();
             QStringList valueList = valueText.split("\n");
-            ui->terminalTextEdit->setText(value);
             valueList[textList.indexOf(name)]= value;
             QString temp =valueList.join("\n");
             ui->valueTextEdit->setText(temp);
+        }
+        else if(memory == "freeing space"){
+            vector<string> value = jsonBuffer["value"];
+            QString valueText= ui->valueTextEdit->toPlainText();
+            QString nameText= ui->nameTextEdit->toPlainText();
+            QString memoryText= ui->memoryTextEdit->toPlainText();
+            QString referenceText= ui->referenceTextEdit->toPlainText();
+
+            QStringList valueList = valueText.split("\n");
+            QStringList nameList = nameText.split("\n");
+            QStringList memoryList = memoryText.split("\n");
+            QStringList referenceList = referenceText.split("\n");
+
+            int i;
+            for(i=0;i<value.size();i++){
+                QString val = QString::fromStdString(value[i]);
+                int num = nameList.indexOf(val);
+                nameList.removeAt(num);
+                valueList.removeAt(num);
+                memoryList.removeAt(num);
+                referenceList.removeAt(num);
+
+            }
+            QString tempName =nameList.join("\n");
+            QString tempValue =valueList.join("\n");
+            QString tempMemory =memoryList.join("\n");
+            QString tempReference =referenceList.join("\n");
+            ui->nameTextEdit->setText(tempName);
+            ui->valueTextEdit->setText(tempValue);
+            ui->memoryTextEdit->setText(tempMemory);
+            ui->referenceTextEdit->setText(tempReference);
 
 
-        }else{
+        }
+        else{
+            QString value = QString::fromStdString(jsonBuffer["value"]);
             QString memory = QString::fromStdString(jsonBuffer["adress"]);
             QString reference = QString::fromStdString(jsonBuffer["referenceCounter"]);
             ramView(memory, value, name, reference);
@@ -317,60 +341,60 @@ void MainWindow::on_nextButton_clicked()
                 if (n < 0){
                     serverError("ERROR writing to socket");
                 }readBuffer();
+            }
+            else if(lastScope < package.at(3).toInt()){
+                j["scope"] = "Started";
+                memset(buffer,0,255);
+                string jsonString = j.dump();
+                QString display = QString::fromStdString(jsonString);
+                ui->terminalTextEdit->append("\n"+display);
+                strncpy(buffer, jsonString.c_str(),255);
+                int n = write(sockfd,buffer,strlen(buffer));
+                ui->applicationLogTextEdit->append("INFO       Sending Json to server");
 
-                } else if(lastScope < package.at(3).toInt()){
-                    j["scope"] = "Started";
-                    memset(buffer,0,255);
-                    string jsonString = j.dump();
-                    QString display = QString::fromStdString(jsonString);
-                    ui->terminalTextEdit->append("\n"+display);
-                    strncpy(buffer, jsonString.c_str(),255);
-                    int n = write(sockfd,buffer,strlen(buffer));
-                    ui->applicationLogTextEdit->append("INFO       Sending Json to server");
-                    if (n < 0){
+                if (n < 0){
                     serverError("ERROR writing to socket");
-                    }
-                }lastScope = package.at(3).toInt();
-
-                j;
-                j["type"] = type.toStdString();
-                j["name"] = package.at(1).toStdString();
-                j["value"] = package.at(2).toStdString();
-                j["scope"] = package.at(3).toStdString();
-                j["ifFlag"] = "false";
-
-                if(type.contains("int",Qt::CaseSensitive)){
-                    j["size"] = 4;
-                } else if(type.contains("double",Qt::CaseSensitive)){
-                    j["size"] = 8;
-                } else if(type.contains("long",Qt::CaseSensitive)){
-                    j["size"] = 8;
-                } else if(type.contains("char",Qt::CaseSensitive)){
-                    j["size"] = 1;
-                } else if(type.contains("reference",Qt::CaseSensitive)){
-                    j["size"] = 4;
-                } else if(type.contains("float",Qt::CaseSensitive)){
-                    j["size"] = 4;
-                } else {
-                    j["size"] = "NULL";
                 }
+            }lastScope = package.at(3).toInt();
 
-                if(j.at("name") != ""){
-                    memset(buffer,0,255);
-                    string jsonString = j.dump();
-                    QString display = QString::fromStdString(jsonString);
-                    ui->terminalTextEdit->append("\n"+display);
-                    strncpy(buffer, jsonString.c_str(),255);
-                    int n = write(sockfd,buffer,strlen(buffer));
-                    ui->applicationLogTextEdit->append("INFO       Sending Json to server");
-                    if (n < 0){
-                        serverError("ERROR writing to socket");
-                    }
-                    readBuffer();
+            j;
+            j["type"] = type.toStdString();
+            j["name"] = package.at(1).toStdString();
+            j["value"] = package.at(2).toStdString();
+            j["scope"] = package.at(3).toStdString();
+            j["ifFlag"] = "false";
+
+            if(type.contains("int",Qt::CaseSensitive)){
+                j["size"] = 4;
+            } else if(type.contains("double",Qt::CaseSensitive)){
+                j["size"] = 8;
+            } else if(type.contains("long",Qt::CaseSensitive)){
+                j["size"] = 8;
+            } else if(type.contains("char",Qt::CaseSensitive)){
+                j["size"] = 1;
+            } else if(type.contains("reference",Qt::CaseSensitive)){
+                j["size"] = 4;
+            } else if(type.contains("float",Qt::CaseSensitive)){
+                j["size"] = 4;
+            } else {
+                j["size"] = "NULL";
+            }
+            if(j.at("name") != ""){
+                memset(buffer,0,255);
+                string jsonString = j.dump();
+                QString display = QString::fromStdString(jsonString);
+                ui->terminalTextEdit->append("\n"+display);
+                strncpy(buffer, jsonString.c_str(),255);
+                int n = write(sockfd,buffer,strlen(buffer));
+                ui->applicationLogTextEdit->append("INFO       Sending Json to server");
+                if (n < 0){
+                    serverError("ERROR writing to socket");
                 }
+                readBuffer();
             }
         }
-        else {ui->pushButton->setDisabled(false);}
+    }
+    else {ui->pushButton->setDisabled(false);}
 }
 
 void MainWindow::cout(string newText){
@@ -439,3 +463,8 @@ void MainWindow::on_pushButton_2_clicked()
 
 
 }
+
+void MainWindow::setMainList(std::list<QStringList> newList){this->mainList = newList;}
+std::list<QStringList> MainWindow::getMainList(){ return this->mainList;}
+int MainWindow::getScopeNum(){return this->scopeNum;}
+void MainWindow::setScopeNum(int scopeNum){this->scopeNum = scopeNum;}

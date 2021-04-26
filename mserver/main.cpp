@@ -244,17 +244,18 @@ void analizeBuffer(){
         if (jsonBuffer["scope"] == "Ended"){
             vector<string> eliminatedVariableNames = removeScopeMemory();
             jsonBuffer["value"] = eliminatedVariableNames;
+            jsonBuffer["adress"]= "freeing space";
             string sendJson = jsonBuffer.dump();
             cout << sendJson << endl;
 
-            /*
+
             memset(buffer,0,255);
             strncpy(buffer, sendJson.c_str(),255);
             int n = write(newsockfd,buffer,strlen(buffer));
             if (n < 0){
                 error("ERROR writing to socket");
             }
-            */
+
             return;
         }
         if (jsonBuffer["scope"] == "Started"){
