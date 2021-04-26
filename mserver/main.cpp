@@ -108,7 +108,7 @@ bool checkBooleanValueOfExpression(string stringExpression){
         QStringList split = qExpression.split("||");
         bool value = false;
         for(QString element : split){
-            value = (value && checkBooleanValueOfExpression(element.toStdString()));
+            value = (value || checkBooleanValueOfExpression(element.toStdString()));
         } return value;
     } else if(qExpression.contains("==")){
         QStringList split = qExpression.split("==");
