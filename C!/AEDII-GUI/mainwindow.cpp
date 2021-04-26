@@ -41,10 +41,6 @@ MainWindow::~MainWindow() {
 * Receives a QString
 * Returns a list with the identified type,name and value.
 */
-bool MainWindow::getTrueIf(){return this->trueIf;}
-void MainWindow::setTrueIf(bool flag){this->trueIf = flag;}
-bool MainWindow::getStopFlag(){return this->stopFlag;}
-void MainWindow::setStopFlag(bool flag){this->stopFlag = flag;}
 
 void MainWindow::ifAndElse(QString text){
     QString textSend = text.remove("(");
@@ -94,13 +90,14 @@ void MainWindow::ifAndElse(QString text){
 
 QStringList MainWindow::identifyStart(QString text)
 {
-    QString nameType;
+    QString nameType; //Struct book { int a =3
     QString value;
     QString type;
     QString name;
     QString scope;
     QString contains = "Null";
     QString endScope = "false";
+    QString structName = "Null";
 
     //While condition
     /*
@@ -129,6 +126,14 @@ QStringList MainWindow::identifyStart(QString text)
         QStringList ifSplit = text.split(")");
         contains = ifSplit.at(0);
         text = ifSplit.at(1);
+        ui->applicationLogTextEdit->setText(text);
+    }
+    if(text.contains("struct",Qt::CaseSensitive)){
+        QStringList structList = text.split("{");
+        structName = structList.at(0);
+        structName = structName.remove("struct");
+        text = "{"+structList.at(1);
+
     }
 
     //Scope  definition
@@ -179,7 +184,7 @@ QStringList MainWindow::identifyStart(QString text)
     }
 
     QStringList package;
-    package << type << name << value << scope<<contains<<endScope;;
+    package << type << name << value << scope<<contains<<endScope<<structName;;
     return package;
 }
 
@@ -205,7 +210,6 @@ void MainWindow::on_pushButton_clicked()
         }
     }
     this->setMainList(mainList);
-
 }
 
 void serverError(const char *msg)
@@ -293,6 +297,34 @@ void MainWindow::readBuffer(){
 
 
 }
+void MainWindow::structJson(std::list<QStringList> structList, string structName){
+    vector<string> types;
+    vector<string> values;
+    for(QStringList package:structList){
+        if(!(package.at(0)=="NULL"&& package.at(1)=="")){
+            types.push_back(package.at(0).toStdString());
+            values.push_back(package.at(1).toStdString());
+        }
+    }
+    json j;
+    j["value"] = values;
+    j["type"] =types;
+    j["name"] = structName;
+    j["struct"] = true;
+    ui->applicationLogTextEdit->setText(QString::fromStdString(j.dump()));
+
+    /*
+    memset(buffer,0,255);
+    string jsonString = j.dump();
+    QString display = QString::fromStdString(jsonString);
+    ui->terminalTextEdit->append("\n"+display);
+    strncpy(buffer, jsonString.c_str(),255);
+    int n = write(sockfd,buffer,strlen(buffer));
+    ui->applicationLogTextEdit->append("INFO       Sending Json to server");
+    if (n < 0){
+        serverError("ERROR writing to socket");*/
+
+}
 
 void MainWindow::on_nextButton_clicked()
 {
@@ -305,95 +337,107 @@ void MainWindow::on_nextButton_clicked()
         QString name = package.at(1);
         QString cont = package.at(4);
         QString endScope = package.at(5);
+        QString structName = package.at(6);
 
+        if(structName!="Null"){
+            QString currentScope= endScope;
+            std::list<QStringList> structList;
+            structList.push_back(package);
 
-        if(cont.contains("else")){
-            name.remove("else").remove("{").remove("}");
-            package[1]= name;
-            if(getTrueIf()){
-                setTrueIf(false);
-            }
-            else{
-                setTrueIf(true);
-            }
-        }
-        else if(cont != "Null"){
-
-            ifAndElse(cont);
-
-        }
-        if(endScope.contains("true")){ setTrueIf(true);}
-
-        if(getTrueIf())
-        {
-            json j;
-            j["type"] = "NULL";
-            j["name"] = "NULL";
-            j["value"] = "NULL";
-            j["ifFlag"] = "false";
-
-            if(lastScope > package.at(3).toInt()){
-                j["scope"] = "Ended";
-                memset(buffer,0,255);
-                string jsonString = j.dump();
-                QString display = QString::fromStdString(jsonString);
-                ui->terminalTextEdit->append("\n"+display);
-                strncpy(buffer, jsonString.c_str(),255);
-                int n = write(sockfd,buffer,strlen(buffer));
-                ui->applicationLogTextEdit->append("INFO       Sending Json to server");
-                if (n < 0){
-                    serverError("ERROR writing to socket");
-                }readBuffer();
-            }
-            else if(lastScope < package.at(3).toInt()){
-                j["scope"] = "Started";
-                memset(buffer,0,255);
-                string jsonString = j.dump();
-                QString display = QString::fromStdString(jsonString);
-                ui->terminalTextEdit->append("\n"+display);
-                strncpy(buffer, jsonString.c_str(),255);
-                int n = write(sockfd,buffer,strlen(buffer));
-                ui->applicationLogTextEdit->append("INFO       Sending Json to server");
-
-                if (n < 0){
-                    serverError("ERROR writing to socket");
+            while(currentScope != "true"){
+                QStringList currentPackage = this->getMainList().front();
+                std::list<QStringList> tempList = this->getMainList();
+                tempList.pop_front();
+                this->setMainList(tempList);
+                structList.push_back(currentPackage);
+                currentScope = currentPackage.at(5);
+            } structJson(structList,structName.toStdString());
+        }else{
+            if(cont.contains("else")){
+                name.remove("else").remove("{").remove("}");
+                package[1]= name;
+                if(getTrueIf()){
+                    setTrueIf(false);
                 }
-            }lastScope = package.at(3).toInt();
-
-            j;
-            j["type"] = type.toStdString();
-            j["name"] = package.at(1).toStdString();
-            j["value"] = package.at(2).toStdString();
-            j["scope"] = package.at(3).toStdString();
-            j["ifFlag"] = "false";
-
-            if(type.contains("int",Qt::CaseSensitive)){
-                j["size"] = 4;
-            } else if(type.contains("double",Qt::CaseSensitive)){
-                j["size"] = 8;
-            } else if(type.contains("long",Qt::CaseSensitive)){
-                j["size"] = 8;
-            } else if(type.contains("char",Qt::CaseSensitive)){
-                j["size"] = 1;
-            } else if(type.contains("reference",Qt::CaseSensitive)){
-                j["size"] = 4;
-            } else if(type.contains("float",Qt::CaseSensitive)){
-                j["size"] = 4;
-            } else {
-                j["size"] = "NULL";
-            }
-            if(j.at("name") != ""){
-                memset(buffer,0,255);
-                string jsonString = j.dump();
-                QString display = QString::fromStdString(jsonString);
-                ui->terminalTextEdit->append("\n"+display);
-                strncpy(buffer, jsonString.c_str(),255);
-                int n = write(sockfd,buffer,strlen(buffer));
-                ui->applicationLogTextEdit->append("INFO       Sending Json to server");
-                if (n < 0){
-                    serverError("ERROR writing to socket");
+                else{
+                    setTrueIf(true);
                 }
-                readBuffer();
+            } else if(cont != "Null"){
+                ifAndElse(cont);
+            }
+            if(endScope.contains("true")){ setTrueIf(true);}
+
+            if(getTrueIf())
+            {
+                json j;
+                j["type"] = "NULL";
+                j["name"] = "NULL";
+                j["value"] = "NULL";
+                j["ifFlag"] = "false";
+
+                if(lastScope > package.at(3).toInt()){
+                    j["scope"] = "Ended";
+                    memset(buffer,0,255);
+                    string jsonString = j.dump();
+                    QString display = QString::fromStdString(jsonString);
+                    ui->terminalTextEdit->append("\n"+display);
+                    strncpy(buffer, jsonString.c_str(),255);
+                    int n = write(sockfd,buffer,strlen(buffer));
+                    ui->applicationLogTextEdit->append("INFO       Sending Json to server");
+                    if (n < 0){
+                        serverError("ERROR writing to socket");
+                    }readBuffer();
+                }
+                else if(lastScope < package.at(3).toInt()){
+                    j["scope"] = "Started";
+                    memset(buffer,0,255);
+                    string jsonString = j.dump();
+                    QString display = QString::fromStdString(jsonString);
+                    ui->terminalTextEdit->append("\n"+display);
+                    strncpy(buffer, jsonString.c_str(),255);
+                    int n = write(sockfd,buffer,strlen(buffer));
+                    ui->applicationLogTextEdit->append("INFO       Sending Json to server");
+
+                    if (n < 0){
+                        serverError("ERROR writing to socket");
+                    }
+                }lastScope = package.at(3).toInt();
+
+                j;
+                j["type"] = type.toStdString();
+                j["name"] = package.at(1).toStdString();
+                j["value"] = package.at(2).toStdString();
+                j["scope"] = package.at(3).toStdString();
+                j["ifFlag"] = "false";
+
+                if(type.contains("int",Qt::CaseSensitive)){
+                    j["size"] = 4;
+                } else if(type.contains("double",Qt::CaseSensitive)){
+                    j["size"] = 8;
+                } else if(type.contains("long",Qt::CaseSensitive)){
+                    j["size"] = 8;
+                } else if(type.contains("char",Qt::CaseSensitive)){
+                    j["size"] = 1;
+                } else if(type.contains("reference",Qt::CaseSensitive)){
+                    j["size"] = 4;
+                } else if(type.contains("float",Qt::CaseSensitive)){
+                    j["size"] = 4;
+                } else {
+                    j["size"] = "NULL";
+                }
+                if(j.at("name") != ""){
+                    memset(buffer,0,255);
+                    string jsonString = j.dump();
+                    QString display = QString::fromStdString(jsonString);
+                    ui->terminalTextEdit->append("\n"+display);
+                    strncpy(buffer, jsonString.c_str(),255);
+                    int n = write(sockfd,buffer,strlen(buffer));
+                    ui->applicationLogTextEdit->append("INFO       Sending Json to server");
+                    if (n < 0){
+                        serverError("ERROR writing to socket");
+                    }
+                    readBuffer();
+                }
             }
         }
     }
@@ -467,6 +511,10 @@ void MainWindow::on_pushButton_2_clicked()
 
 }
 
+bool MainWindow::getTrueIf(){return this->trueIf;}
+void MainWindow::setTrueIf(bool flag){this->trueIf = flag;}
+bool MainWindow::getStopFlag(){return this->stopFlag;}
+void MainWindow::setStopFlag(bool flag){this->stopFlag = flag;}
 void MainWindow::setMainList(std::list<QStringList> newList){this->mainList = newList;}
 std::list<QStringList> MainWindow::getMainList(){ return this->mainList;}
 int MainWindow::getScopeNum(){return this->scopeNum;}

@@ -92,5 +92,6 @@ private:
     void readBuffer();
     void ifAndElse(QString text);
     bool identifyIfandElse(QString text);
+    void structJson(std::list<QStringList> structList, string structName);
 };
 #endif // MAINWINDOW_H
