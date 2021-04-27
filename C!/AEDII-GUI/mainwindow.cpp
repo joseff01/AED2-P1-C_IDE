@@ -12,6 +12,17 @@
 #include <netdb.h>
 #include <iostream>
 
+/*
+ * struct book {
+int a;
+int b;
+}
+
+book pito;
+
+pito.a =3;
+pito.b =4;
+*/
 
 using json = nlohmann::json;
 
@@ -261,11 +272,51 @@ void MainWindow::readBuffer(){
     {
         ui->applicationLogTextEdit->append("WARN    parsing message from the server");
         json jsonBuffer = json::parse(buffer);
-        QString name = QString::fromStdString(jsonBuffer["name"]);
-        QString memory = QString::fromStdString(jsonBuffer["adress"]);
-        QString type = QString::fromStdString(jsonBuffer["adress"]);
-        QString text = ui->nameTextEdit->toPlainText();
-        QStringList textList = text.split("\n");
+        std::cout << jsonBuffer<<endl;
+        string referenceFlag = jsonBuffer["referenceFlag"];
+
+
+        if(referenceFlag == "true1"){
+            vector<string> names = jsonBuffer["value"];
+            vector<string> addresses = jsonBuffer["adress"];
+            vector<string> references = jsonBuffer["referenceCounter"];
+
+            int i;
+            for(i=0;i<names.size();i++){
+                QString variableName = QString::fromStdString(names[i]);
+                QString variableAddresses = QString::fromStdString(addresses[i]);
+                QString variableReference = QString::fromStdString(references[i]);
+                ui->nameTextEdit->append(variableName);
+                ui->memoryTextEdit->append(variableAddresses);
+                ui->valueTextEdit->append("NULL");
+                ui->referenceTextEdit->append(variableReference);
+            }
+        }
+        else if(referenceFlag == "true2"){
+            QString referenceText= ui->referenceTextEdit->toPlainText();
+            QStringList referenceList = referenceText.split("\n");
+            QString memory = ui->memoryTextEdit->toPlainText();
+            QStringList memoryList = memory.split("\n");
+            vector<string> addresses = jsonBuffer["adress"];
+
+            int i;
+            for(i=0;i<addresses.size();i++){
+                QString variableAddresses = QString::fromStdString(addresses[i]);
+                string numString = referenceList[memoryList.indexOf(variableAddresses)].toStdString();
+                int num = stoi(numString);
+                num =num+1;
+                referenceList[memoryList.indexOf(variableAddresses)] = QString::number(num);
+                QString temp =referenceList.join("\n");
+                ui->valueTextEdit->setText(temp);
+            }
+
+
+        }else{
+            QString name = QString::fromStdString(jsonBuffer["name"]);
+            QString memory = QString::fromStdString(jsonBuffer["adress"]);
+            QString type = QString::fromStdString(jsonBuffer["type"]);
+            QString text = ui->nameTextEdit->toPlainText();
+            QStringList textList = text.split("\n");
 
         if(textList.contains(name)){
             QString value = QString::fromStdString(jsonBuffer["value"]);
@@ -274,6 +325,7 @@ void MainWindow::readBuffer(){
             valueList[textList.indexOf(name)]= value;
             QString temp =valueList.join("\n");
             ui->valueTextEdit->setText(temp);
+
         }else if(type =="cout"){
             cout(jsonBuffer["value"]);
         }
@@ -307,14 +359,13 @@ void MainWindow::readBuffer(){
             ui->valueTextEdit->setText(tempValue);
             ui->memoryTextEdit->setText(tempMemory);
             ui->referenceTextEdit->setText(tempReference);
-
-
         }
         else{
             QString value = QString::fromStdString(jsonBuffer["value"]);
             QString memory = QString::fromStdString(jsonBuffer["adress"]);
             QString reference = QString::fromStdString(jsonBuffer["referenceCounter"]);
             ramView(memory, value, name, reference);
+        }
         }
     }
     else{
@@ -323,7 +374,6 @@ void MainWindow::readBuffer(){
         ui->applicationLogTextEdit->append(str);
         on_deleteButton_clicked();
     }
-
 
 }
 void MainWindow::structJson(std::list<QStringList> structList, string structName){
