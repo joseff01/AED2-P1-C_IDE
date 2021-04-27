@@ -118,6 +118,7 @@ QStringList MainWindow::identifyStart(QString text)
     QString structName = "Null";
     QString whileContains = "Null";
     QString couText;
+    QString pointFlag = "false";
 
     //While condition
     /*
@@ -143,21 +144,30 @@ QStringList MainWindow::identifyStart(QString text)
     //If definition
     if (text.contains("if")){
         text.remove("if(");
-        QStringList ifSplit = text.split(")");
+        QStringList ifSplit = text.split("{");
         contains = ifSplit.at(0);
-        text = ifSplit.at(1);
+        contains.remove(")");
+        text = text.mid(text.indexOf("{"));
+
     }
     if(text.contains("struct",Qt::CaseSensitive)){
         QStringList structList = text.split("{");
         structName = structList.at(0);
         structName = structName.remove("struct");
-        text = "{"+structList.at(1);
+        text = text.mid(text.indexOf("{"));
+
     }
     if (text.contains("while")){
         text.remove("while(");
-        QStringList ifSplit = text.split(")");
+        QStringList ifSplit = text.split("{");
         whileContains = ifSplit.at(0);
-        text = ifSplit.at(1);
+        whileContains.remove(")");
+        text = text.mid(text.indexOf("{"));
+    }
+    if(text.contains("reference")){
+        text.remove("reference<").remove(">");
+        pointFlag = "true";
+
     }
 
     //Scope  definition
@@ -172,10 +182,11 @@ QStringList MainWindow::identifyStart(QString text)
 
     //Division by =
     if(text.contains("cout")){
-            QString temp = text;
-            temp.remove("cout(").remove(")");
-            value = temp;
-            nameType = text;
+        QString temp = text;
+        temp.remove(temp.lastIndexOf(")"),temp.lastIndexOf(")"));
+        temp.remove("cout(");
+        value = temp;
+        nameType = text;
     }else if(text.contains("=",Qt::CaseSensitive)){
         QStringList equalSplit = text.split("=");
         nameType = equalSplit.at(0);
@@ -197,9 +208,6 @@ QStringList MainWindow::identifyStart(QString text)
     } else if(nameType.contains("char",Qt::CaseSensitive)){
         type = "char";
         name = nameType.remove("char",Qt::CaseSensitive).remove(" ").remove("\n");
-    } else if(nameType.contains("reference",Qt::CaseSensitive)){
-        type = "reference";
-        name = nameType.remove("reference",Qt::CaseSensitive).remove(" ").remove("\n");
     } else if(nameType.contains("float",Qt::CaseSensitive)){
         type = "float";
         name = nameType.remove("float",Qt::CaseSensitive).remove(" ").remove("\n");
@@ -216,7 +224,7 @@ QStringList MainWindow::identifyStart(QString text)
     }
 
     QStringList package;
-    package << type << name << value << scope<<contains<<endScope<<structName<<whileContains;;
+    package << type << name << value << scope<<contains<<endScope<<structName<<whileContains<<pointFlag;;
     QString tempName =package.join("\n");
     ui->applicationLogTextEdit->setText(tempName);
 
@@ -305,7 +313,7 @@ void MainWindow::readBuffer(){
                 num =num+1;
                 referenceList[memoryList.indexOf(variableAddresses)] = QString::number(num);
                 QString temp =referenceList.join("\n");
-                ui->valueTextEdit->setText(temp);
+                ui->referenceTextEdit->setText(temp);
             }
 
 
@@ -467,26 +475,25 @@ void MainWindow::on_nextButton_clicked()
             std::vector<std::vector<QStringList>> whileVector = this->getWhileVector();
             int whileVectorSize = whileVector.size();
             if(whileVectorSize-1 < whileNum){
-                std::cout <<"pasando" << std::endl;
+
                 std::vector<QStringList> element;
                 whileVector.push_back(element);
             }
             whileVectorSize = whileVector.size();
             for(int i = 0; i < whileVectorSize; i++){
                 whileVector[i].push_back(package);
-                std::cout <<"Primer for"<< i << std::endl;
+
             } this->setWhileVector(whileVector);
             if(package.at(5) == "true"){
-                std::cout <<"Igual a True" << std::endl;
+
                 std::list<QStringList> newMainList = this->getMainList();;
                 std::vector<QStringList> element = this->getWhileVector()[whileNum];
-                std::cout <<"Primer tamaño" <<this->getMainList().size() << std::endl;
+
                 int elementSize = element.size();
                 for(int i = 0;i < elementSize; i++){
                     newMainList.push_back(element[i]);
-                    std::cout <<"Segundo for"<< i << std::endl;
                 } this->setMainList(newMainList);
-                std::cout << "Segundo tamaño" <<this->getMainList().size() << std::endl;
+
                 std::vector<std::vector<QStringList>> whileVector = this->getWhileVector();
                 whileVector[whileNum].clear();
                 this->setWhileVector(whileVector);
@@ -567,6 +574,9 @@ void MainWindow::on_nextButton_clicked()
                 j["value"] = package.at(2).toStdString();
                 j["scope"] = package.at(3).toStdString();
                 j["ifFlag"] = "false";
+                if(package.at(8)=="true")
+                { j["pointFlag"]= true;}
+                else{j["pointFlag"]= false;}
 
                 for(QString structName:getStructName()){
                     if(package.at(1).contains(structName)){
