@@ -245,8 +245,7 @@ void MainWindow::readBuffer(){
     int n = read(sockfd,buffer,255);
     if (n < 0) serverError("ERROR reading from socket");
 
-    if (buffer[0] == '{')
-    {
+    if (buffer[0] == '{'){
         ui->applicationLogTextEdit->append("WARN    parsing message from the server");
         json jsonBuffer = json::parse(buffer);
         QString name = QString::fromStdString(jsonBuffer["name"]);
@@ -382,26 +381,60 @@ void MainWindow::on_nextButton_clicked()
         }*/
 
         if(containsWhile!="Null"){
-            string booleanWhile = ifAndElse(containsWhile, false);
+            string booleanWhile = ifAndElse(containsWhile, true);
             if(booleanWhile =="true"){
                 whileNum = whileNum +1;
+                std::cout << "Num +1 " << std::endl;
             }else{
+                QStringList currentPackage = this->getMainList().front();
+                QString currentEndScope = currentPackage.at(5);
+                QString currentScope = currentPackage.at(3);
 
+                while(currentEndScope != "true" && currentScope != package.at(3)){
+                    std::list<QStringList> tempList = this->getMainList();
+                    tempList.pop_front();
+                    this->setMainList(tempList);
+                    currentPackage = this->getMainList().front();
+                    currentScope = currentPackage.at(5);
+                    currentScope = currentPackage.at(3);
+                } return;
             }
-
-            //enviar a jose
-
-
+        } if(whileNum > -1){
+            std::vector<std::vector<QStringList>> whileVector = this->getWhileVector();
+            int whileVectorSize = whileVector.size();
+            if(whileVectorSize-1 < whileNum){
+                std::cout <<"pasando" << std::endl;
+                std::vector<QStringList> element;
+                whileVector.push_back(element);
+            }
+            whileVectorSize = whileVector.size();
+            for(int i = 0; i < whileVectorSize; i++){
+                whileVector[i].push_back(package);
+                std::cout <<"Primer for"<< i << std::endl;
+            } this->setWhileVector(whileVector);
+            if(package.at(5) == "true"){
+                std::cout <<"Igual a True" << std::endl;
+                std::list<QStringList> newMainList = this->getMainList();;
+                std::vector<QStringList> element = this->getWhileVector()[whileNum];
+                std::cout <<"Primer tamaño" <<this->getMainList().size() << std::endl;
+                int elementSize = element.size();
+                for(int i = 0;i < elementSize; i++){
+                    newMainList.push_back(element[i]);
+                    std::cout <<"Segundo for"<< i << std::endl;
+                } this->setMainList(newMainList);
+                std::cout << "Segundo tamaño" <<this->getMainList().size() << std::endl;
+                std::vector<std::vector<QStringList>> whileVector = this->getWhileVector();
+                whileVector[whileNum].clear();
+                this->setWhileVector(whileVector);
+                whileNum -=1 ;
+            }
         }
-
-
         if(structName!="Null"){
-            QString currentScope= endScope;
             std::list<QStringList> structList;
             structList.push_back(package);
 
             QStringList currentPackage = this->getMainList().front();
-            currentScope = currentPackage.at(5);
+            QString currentScope = currentPackage.at(5);
 
             while(currentScope != "true"){
 
@@ -590,3 +623,5 @@ int MainWindow::getScopeNum(){return this->scopeNum;}
 void MainWindow::setScopeNum(int scopeNum){this->scopeNum = scopeNum;}
 std::list<std::list<QStringList>> MainWindow::getWhileList(){return this->whileList;}
 void MainWindow::setWhileList(std::list<std::list<QStringList>> list){this->whileList=list;}
+std::vector<std::vector<QStringList>> MainWindow::getWhileVector(){return this->whileVector;}
+void MainWindow::setWhileVector(std::vector<std::vector<QStringList>> vector){this->whileVector=vector;};

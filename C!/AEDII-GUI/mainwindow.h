@@ -51,6 +51,8 @@ public:
     void setStructName(QStringList list);
     std::list<std::list<QStringList>> getWhileList();
     void setWhileList(std::list<std::list<QStringList>> list);
+    std::vector<std::vector<QStringList>> getWhileVector();
+    void setWhileVector(vector<std::vector<QStringList>> vector);
 
 private slots:
     /**
@@ -99,5 +101,6 @@ private:
     bool identifyIfandElse(QString text);
     void structJson(std::list<QStringList> structList, string structName);
     std::list<std::list<QStringList>> whileList;
+    std::vector<std::vector<QStringList>> whileVector;
 };
 #endif // MAINWINDOW_H

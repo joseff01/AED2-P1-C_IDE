@@ -131,25 +131,25 @@ bool checkBooleanValueOfExpression(string stringExpression){
         auto a = checkNumericalValueOfExpression(split.at(0).toStdString());
         auto b = checkNumericalValueOfExpression(split.at(1).toStdString());
         cout << "a: " << a << "    b: " << b << endl;
-        return (a < b);
+        return (a <= b);
     } else if(qExpression.contains(">=")){
         QStringList split = qExpression.split(">=");
         auto a = checkNumericalValueOfExpression(split.at(0).toStdString());
         auto b = checkNumericalValueOfExpression(split.at(1).toStdString());
         cout << "a: " << a << "    b: " << b << endl;
-        return (a > b);
+        return (a >= b);
     } else if(qExpression.contains(">")){
         QStringList split = qExpression.split(">");
         auto a = checkNumericalValueOfExpression(split.at(0).toStdString());
         auto b = checkNumericalValueOfExpression(split.at(1).toStdString());
         cout << "a: " << a << "    b: " << b << endl;
-        return (a >= b);
+        return (a > b);
     } else if(qExpression.contains("<")){
         QStringList split = qExpression.split("<");
         auto a = checkNumericalValueOfExpression(split.at(0).toStdString());
         auto b = checkNumericalValueOfExpression(split.at(1).toStdString());
         cout << "a: " << a << "    b: " << b << endl;
-        return (a <= b);
+        return (a < b);
     }
 }
 
@@ -253,6 +253,7 @@ void analizeBuffer(){
     if (buffer[0] == '{'){
         void* returningAdress;
         json jsonBuffer = json::parse(buffer);
+        jsonBuffer["adress"] = "NULL";
         if (jsonBuffer["struct"] == true){
             if(structToNamesVectorMap.count(jsonBuffer["name"]) > 0){
                 string invalidName = jsonBuffer["name"];
