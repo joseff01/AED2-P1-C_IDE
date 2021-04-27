@@ -46,6 +46,13 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow() {
     ::close(sockfd);
+    string deleteCode =  "CLOSE_CODE";
+    memset(buffer,0,255);
+    strncpy(buffer, deleteCode.c_str(),255);
+    int n = write(sockfd,buffer,strlen(buffer));
+    ui->applicationLogTextEdit->append("INFO       Sending Json to server");
+    if (n < 0){serverError("ERROR writing to socket");}
+
     delete ui;
 }
 
@@ -100,6 +107,7 @@ string MainWindow::ifAndElse(QString text,bool isWhile){
         QString str = QString::fromStdString(newstr);
         ui->applicationLogTextEdit->append(str);
         return "error";
+        on_deleteButton_clicked();
     }
 }
 
@@ -114,7 +122,6 @@ QStringList MainWindow::identifyStart(QString text)
     QString endScope = "false";
     QString structName = "Null";
     QString whileContains = "Null";
-    QString couText;
     QString pointFlag = "false";
 
     //While condition
@@ -677,7 +684,13 @@ void MainWindow::on_deleteButton_clicked()
     std::list<QStringList> list;
     setMainList(list);
 
-    // F A L T A eliminar memoria
+    string deleteCode =  "DELETE_CODE";
+    memset(buffer,0,255);
+    strncpy(buffer, deleteCode.c_str(),255);
+    int n = write(sockfd,buffer,strlen(buffer));
+    ui->applicationLogTextEdit->append("INFO       Sending Json to server");
+    if (n < 0){serverError("ERROR writing to socket");}
+
     alignText();
 
 }
@@ -701,8 +714,6 @@ QStringList MainWindow::getStructName(){return this->structNames;}
 void MainWindow::setStructName(QStringList list){this->structNames=list;}
 bool MainWindow::getTrueIf(){return this->trueIf;}
 void MainWindow::setTrueIf(bool flag){this->trueIf = flag;}
-bool MainWindow::getStopFlag(){return this->stopFlag;}
-void MainWindow::setStopFlag(bool flag){this->stopFlag = flag;}
 void MainWindow::setMainList(std::list<QStringList> newList){this->mainList = newList;}
 std::list<QStringList> MainWindow::getMainList(){ return this->mainList;}
 int MainWindow::getScopeNum(){return this->scopeNum;}
