@@ -100,8 +100,8 @@ string getVariableValue(string variableName){
         } else {
             return "ERROR";
         }
-    }else if(variableName.find(".getValue()") != std::string::npos){
-        string modifiedReferenceName = variableName.substr(0,variableName.size()-11);
+    }else if(variableName.find("getvalue(") != std::string::npos){
+        string modifiedReferenceName = variableName.substr(9,variableName.size()-10);
         if ((nameToOffsetMap.count(modifiedReferenceName) > 0) && (nameToTypeMap[modifiedReferenceName] == "reference")){
             int referenceOffset = nameToOffsetMap[modifiedReferenceName];
             char* referenceAdress = (char*) startAdress;
@@ -1501,5 +1501,5 @@ int main(int argc, char *argv[])
 
     free(startAdress);
 
-    return a.exec();
+    exit(0);
 }
