@@ -317,19 +317,21 @@ vector<string> removeScopeMemory(){
 }
 
 void analizeBuffer(){
-    if (buffer[0] == '{'){
-
+    string strBuffer(buffer);
+    cout << strBuffer << endl;
+    if (strBuffer == "CLOSE_CODE" ){
+        runServer = false;
+        return;
+    } else if(strBuffer == "DELETE_CODE"){
+        resetMemory();
+        cout << "Memory Reset" << endl;
+        return;
+    } else if (buffer[0] == '{'){
         void* returningAdress;
-        string strBuffer(buffer);
-        if (strBuffer == "CLOSE_CE" ){
-            runServer = false;
-            return;
-        } else if(strBuffer == "DELETE_CODE"){
-            resetMemory();
-            return;
-        }
+
         json jsonBuffer = json::parse(buffer);
         jsonBuffer["adress"] = "NULL";
+        jsonBuffer["referenceCounter"] = "1";
         jsonBuffer["referenceFlag"] = "false";
         bool declarationFlag = false;
         if (jsonBuffer["type"] == "cout"){
@@ -369,7 +371,7 @@ void analizeBuffer(){
             declarationFlag = true;
         }
 
-        if (jsonBuffer["pointFlag"] == "true"){
+        if (jsonBuffer["pointFlag"] == true){
             if (declarationFlag){
                 string refName = jsonBuffer["name"];
                 string refType = jsonBuffer["type"];
@@ -442,8 +444,11 @@ void analizeBuffer(){
 
                         jsonBuffer["adress"] = refAdressString;
                         jsonBuffer["value"] = variableAdressString;
+                        jsonBuffer["referenceFlag"] = "true3";
                         string sendJson = jsonBuffer.dump();
-                        cout << returningAdress << endl;
+                        cout << refAdressString << endl;
+                        cout << variableAdressString << endl;
+                        cout << sendJson << endl;
                         memset(buffer,0,255);
                         strncpy(buffer, sendJson.c_str(),255);
                         int n = write(newsockfd,buffer,strlen(buffer));
