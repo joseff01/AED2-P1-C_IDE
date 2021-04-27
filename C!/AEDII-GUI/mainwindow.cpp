@@ -45,13 +45,13 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 MainWindow::~MainWindow() {
-    ::close(sockfd);
     string deleteCode =  "CLOSE_CODE";
     memset(buffer,0,255);
     strncpy(buffer, deleteCode.c_str(),255);
     int n = write(sockfd,buffer,strlen(buffer));
     ui->applicationLogTextEdit->append("INFO       Sending Json to server");
     if (n < 0){serverError("ERROR writing to socket");}
+    ::close(sockfd);
 
     delete ui;
 }
@@ -327,7 +327,26 @@ void MainWindow::readBuffer(){
                 QString temp =referenceList.join("\n");
                 ui->referenceTextEdit->setText(temp);  
             }
-            alignText();
+            alignText();/*
+            else if(referenceFlag == "true2"){
+                QString referenceText= ui->referenceTextEdit->toPlainText();
+                QStringList referenceList = referenceText.split("\n");
+                QString memory = ui->memoryTextEdit->toPlainText();
+                QStringList memoryList = memory.split("\n");
+                vector<string> addresses = jsonBuffer["adress"];
+
+                int i;
+                for(i=0;i<addresses.size();i++){
+                    QString variableAddresses = QString::fromStdString(addresses[i]);
+                    string numString = referenceList[memoryList.indexOf(variableAddresses)].toStdString();
+                    int num = stoi(numString);
+                    num =num+1;
+                    referenceList[memoryList.indexOf(variableAddresses)] = QString::number(num);
+                    QString temp =referenceList.join("\n");
+                    ui->referenceTextEdit->setText(temp);
+                }
+                alignText();*/
+
 
 
         }else{
