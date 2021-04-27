@@ -132,7 +132,6 @@ QStringList MainWindow::identifyStart(QString text)
     }
 
     //Scope  definition
-
     if(text.contains("{")){
         this->setScopeNum(this->getScopeNum()+1);
         text.remove("{");
