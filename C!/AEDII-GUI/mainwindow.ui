@@ -164,7 +164,7 @@ font: 75 12pt &quot;Waree&quot;;</string>
       <height>661</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="13,10,10,10">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="13,10,11,10">
      <property name="spacing">
       <number>0</number>
      </property>

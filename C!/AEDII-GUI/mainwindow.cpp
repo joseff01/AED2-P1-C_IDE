@@ -325,31 +325,25 @@ void MainWindow::readBuffer(){
                 num =num+1;
                 referenceList[memoryList.indexOf(variableAddresses)] = QString::number(num);
                 QString temp =referenceList.join("\n");
-                ui->referenceTextEdit->setText(temp);  
+                ui->referenceTextEdit->setText(temp);
             }
-            alignText();/*
-            else if(referenceFlag == "true2"){
-                QString referenceText= ui->referenceTextEdit->toPlainText();
-                QStringList referenceList = referenceText.split("\n");
-                QString memory = ui->memoryTextEdit->toPlainText();
-                QStringList memoryList = memory.split("\n");
-                vector<string> addresses = jsonBuffer["adress"];
+            alignText();
+        }else if(referenceFlag == "true3"){
+            QString value = QString::fromStdString(jsonBuffer["value"]);
+            QString memory = ui->memoryTextEdit->toPlainText();
+            QStringList memoryList = memory.split("\n");
+            QString referenceText= ui->referenceTextEdit->toPlainText();
+            QStringList referenceList = referenceText.split("\n");
+            string numString = referenceList[memoryList.indexOf(value)].toStdString();
+            int num = stoi(numString);
+            num =num+1;
+            referenceList[memoryList.indexOf(value)] = QString::number(num);
+            QString temp =referenceList.join("\n");
+            ui->referenceTextEdit->setText(temp);
+            ui->referenceTextEdit->setAlignment(Qt::AlignCenter);
+        }
 
-                int i;
-                for(i=0;i<addresses.size();i++){
-                    QString variableAddresses = QString::fromStdString(addresses[i]);
-                    string numString = referenceList[memoryList.indexOf(variableAddresses)].toStdString();
-                    int num = stoi(numString);
-                    num =num+1;
-                    referenceList[memoryList.indexOf(variableAddresses)] = QString::number(num);
-                    QString temp =referenceList.join("\n");
-                    ui->referenceTextEdit->setText(temp);
-                }
-                alignText();*/
-
-
-
-        }else{
+        else{
             QString name = QString::fromStdString(jsonBuffer["name"]);
             QString memory = QString::fromStdString(jsonBuffer["adress"]);
             QString type = QString::fromStdString(jsonBuffer["type"]);
