@@ -47,6 +47,10 @@ public:
     void setTrueIf(bool flag);
     bool getStopFlag();
     void setStopFlag(bool flag);
+    QStringList getStructName();
+    void setStructName(QStringList list);
+    std::list<std::list<QStringList>> getWhileList();
+    void setWhileList(std::list<std::list<QStringList>> list);
 
 private slots:
     /**
@@ -66,11 +70,11 @@ private slots:
      */
     void on_deleteButton_clicked();
 
-    void on_pushButton_2_clicked();
 
 private:
     Ui::MainWindow *ui;
     std::list<QStringList> mainList;
+    QStringList structNames;
     int scopeNum;
     bool whileFlag;
     bool trueIf = true;
@@ -90,7 +94,10 @@ private:
      */
     void ramView(QString memory, QString value, QString name, QString reference);
     void readBuffer();
-    void ifAndElse(QString text);
+
+    string ifAndElse(QString text,bool isWhile);
     bool identifyIfandElse(QString text);
+    void structJson(std::list<QStringList> structList, string structName);
+    std::list<std::list<QStringList>> whileList;
 };
 #endif // MAINWINDOW_H
