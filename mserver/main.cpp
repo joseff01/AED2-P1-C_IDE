@@ -258,6 +258,10 @@ void analizeBuffer(){
         json jsonBuffer = json::parse(buffer);
         jsonBuffer["adress"] = "NULL";
         jsonBuffer["referenceFlag"] = "false";
+        bool declarationFlag = false;
+        if (jsonBuffer["value"] == "NULL"){
+            declarationFlag = true;
+        }
 
         if (jsonBuffer["refFlag"] == "true"){
             if(nameToTypeMap.count(jsonBuffer["value"]) > 0){
@@ -357,7 +361,6 @@ void analizeBuffer(){
                         resetMemory();
                         return;
                     }
-
                 } else{
                     string invalidRef = jsonBuffer["value"];
                     string storageError ="ERROR   reference " + invalidRef + " is not of the correct type.";
@@ -450,10 +453,6 @@ void analizeBuffer(){
             }
             return;
         }
-        bool declarationFlag = false;
-        if (jsonBuffer["value"] == "NULL"){
-            declarationFlag = true;
-        }
 
         if(structToNamesVectorMap.count(jsonBuffer["type"]) > 0){
             if (jsonBuffer["value"] != "NULL"){
@@ -468,6 +467,7 @@ void analizeBuffer(){
                         for (int i = 0; i < variableAmount; i++){
                             char* variableAdress = (char*) startAdress;
                             variableAdress = variableAdress + offsetsVector[i];
+                            void* adressToSend = variableAdress;
                             string variableScopeString = jsonBuffer["scope"];
                             int variableScope = stoi(variableScopeString);
                             string variableName = (string) jsonBuffer["name"] + "." + variableNames[i];
@@ -475,7 +475,11 @@ void analizeBuffer(){
                             nameToOffsetMap.insert(pair<string, int>(variableName,offsetsVector[i]));
                             nameToTypeMap.insert(pair<string, string>(variableName,variableType));
                             nameToScopeMap.insert(pair<string,int>(variableName,variableScope));
-                            variableAdresses.push_back(variableAdress);
+                            stringstream ss;
+                            ss << adressToSend;
+                            string returningAdressString = ss.str();
+
+                            variableAdresses.push_back(returningAdressString);
                         }
                         nameToTypeMap.insert(pair<string, string>(jsonBuffer["name"],jsonBuffer["type"]));
                         structTypeToOffsetsVectorMap.insert(pair<string, vector<int>>(jsonBuffer["name"],offsetsVector));
