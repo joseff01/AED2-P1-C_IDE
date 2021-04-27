@@ -21,6 +21,7 @@ void error(const char *msg)
     exit(1);
 }
 
+bool runServer = true;
 int baseSocketNumber = 5000;
 int sockfd, newsockfd;
 char buffer[255];
@@ -317,12 +318,20 @@ vector<string> removeScopeMemory(){
 
 void analizeBuffer(){
     if (buffer[0] == '{'){
+
         void* returningAdress;
+        string strBuffer(buffer);
+        if (strBuffer == "CLOSE_CE" ){
+            runServer = false;
+            return;
+        } else if(strBuffer == "DELETE_CODE"){
+            resetMemory();
+            return;
+        }
         json jsonBuffer = json::parse(buffer);
         jsonBuffer["adress"] = "NULL";
         jsonBuffer["referenceFlag"] = "false";
         bool declarationFlag = false;
-
         if (jsonBuffer["type"] == "cout"){
             try {
                 double numericalValue = checkNumericalValueOfExpression(jsonBuffer["value"]);
@@ -360,7 +369,7 @@ void analizeBuffer(){
             declarationFlag = true;
         }
 
-        if (jsonBuffer["refFlag"] == "true"){
+        if (jsonBuffer["pointFlag"] == "true"){
             if (declarationFlag){
                 string refName = jsonBuffer["name"];
                 string refType = jsonBuffer["type"];
@@ -1480,10 +1489,12 @@ int main(int argc, char *argv[])
 
     startAdress = malloc(10000);
 
-    while(true){
+    while(runServer){
         readBuffer();
         analizeBuffer();
     }
+
+    free(startAdress);
 
     return a.exec();
 }
