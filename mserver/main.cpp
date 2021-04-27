@@ -257,7 +257,8 @@ void analizeBuffer(){
         void* returningAdress;
         json jsonBuffer = json::parse(buffer);
         jsonBuffer["adress"] = "NULL";
-        /*
+        jsonBuffer["referenceFlag"] = "false";
+
         if (jsonBuffer["refFlag"] == "true"){
             if (jsonBuffer["type"] == nameToTypeMap[jsonBuffer["value"]]){
                 string refName = jsonBuffer["name"];
@@ -303,7 +304,6 @@ void analizeBuffer(){
             }
 
         }
-        */
         if (jsonBuffer["struct"] == true){
             if(structToNamesVectorMap.count(jsonBuffer["name"]) > 0){
                 string invalidName = jsonBuffer["name"];
@@ -411,7 +411,7 @@ void analizeBuffer(){
                         structTypeToOffsetsVectorMap.insert(pair<string, vector<int>>(jsonBuffer["name"],offsetsVector));
                         jsonBuffer["adress"] = variableAdresses;
                         jsonBuffer["referenceCounter"] = variableReferenceCounter;
-                        jsonBuffer["referenceFlag"] = "true";
+                        jsonBuffer["referenceFlag"] = "true2";
                         string sendJson = jsonBuffer.dump();
                         memset(buffer,0,255);
                         strncpy(buffer, sendJson.c_str(),255);
@@ -480,6 +480,7 @@ void analizeBuffer(){
                     ss << variableAdress;
                     string returningAdressString = ss.str();
                     jsonBuffer["referenceCounter"] = "1";
+                    jsonBuffer["referenceFlag"] = "true1";
                     variableOffsetVector.push_back(variableOffset);
                     variableAdresses.push_back(returningAdressString);
                     variableReferenceCounter.push_back("1");
