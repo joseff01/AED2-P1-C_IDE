@@ -331,9 +331,8 @@ void MainWindow::structJson(std::list<QStringList> structList, string structName
     j["type"] =types;
     j["name"] = structName;
     j["struct"] = true;
-    ui->applicationLogTextEdit->setText(QString::fromStdString(j.dump()));
+    ui->terminalTextEdit->append(QString::fromStdString(j.dump()));
 
-    /*
     memset(buffer,0,255);
     string jsonString = j.dump();
     QString display = QString::fromStdString(jsonString);
@@ -342,8 +341,8 @@ void MainWindow::structJson(std::list<QStringList> structList, string structName
     int n = write(sockfd,buffer,strlen(buffer));
     ui->applicationLogTextEdit->append("INFO       Sending Json to server");
     if (n < 0){
-        serverError("ERROR writing to socket");*/
-
+        serverError("ERROR writing to socket");
+    }
 }
 
 
