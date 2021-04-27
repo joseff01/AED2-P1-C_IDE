@@ -46,6 +46,13 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow() {
     ::close(sockfd);
+    string deleteCode =  "CLOSE_CODE";
+    memset(buffer,0,255);
+    strncpy(buffer, deleteCode.c_str(),255);
+    int n = write(sockfd,buffer,strlen(buffer));
+    ui->applicationLogTextEdit->append("INFO       Sending Json to server");
+    if (n < 0){serverError("ERROR writing to socket");}
+
     delete ui;
 }
 
@@ -67,9 +74,6 @@ string MainWindow::ifAndElse(QString text,bool isWhile){
 
     memset(buffer,0,255);
     string jsonString = sendText.dump();
-    QString display = QString::fromStdString(jsonString);
-    ui->terminalTextEdit->append("\n"+display);
-
     strncpy(buffer, jsonString.c_str(),255);
     int n = write(sockfd,buffer,strlen(buffer));
     ui->applicationLogTextEdit->append("INFO       Sending Json verification to server");
@@ -103,6 +107,7 @@ string MainWindow::ifAndElse(QString text,bool isWhile){
         QString str = QString::fromStdString(newstr);
         ui->applicationLogTextEdit->append(str);
         return "error";
+        on_deleteButton_clicked();
     }
 }
 
@@ -117,7 +122,7 @@ QStringList MainWindow::identifyStart(QString text)
     QString endScope = "false";
     QString structName = "Null";
     QString whileContains = "Null";
-    QString couText;
+    QString pointFlag = "false";
 
     //While condition
     /*
@@ -143,21 +148,30 @@ QStringList MainWindow::identifyStart(QString text)
     //If definition
     if (text.contains("if")){
         text.remove("if(");
-        QStringList ifSplit = text.split(")");
+        QStringList ifSplit = text.split("{");
         contains = ifSplit.at(0);
-        text = ifSplit.at(1);
+        contains.remove(")");
+        text = text.mid(text.indexOf("{"));
+
     }
     if(text.contains("struct",Qt::CaseSensitive)){
         QStringList structList = text.split("{");
         structName = structList.at(0);
         structName = structName.remove("struct");
-        text = "{"+structList.at(1);
+        text = text.mid(text.indexOf("{"));
+
     }
     if (text.contains("while")){
         text.remove("while(");
-        QStringList ifSplit = text.split(")");
+        QStringList ifSplit = text.split("{");
         whileContains = ifSplit.at(0);
-        text = ifSplit.at(1);
+        whileContains.remove(")");
+        text = text.mid(text.indexOf("{"));
+    }
+    if(text.contains("reference")){
+        text.remove("reference<").remove(">");
+        pointFlag = "true";
+
     }
 
     //Scope  definition
@@ -172,10 +186,11 @@ QStringList MainWindow::identifyStart(QString text)
 
     //Division by =
     if(text.contains("cout")){
-            QString temp = text;
-            temp.remove("cout(").remove(")");
-            value = temp;
-            nameType = text;
+        QString temp = text;
+        temp.remove(temp.lastIndexOf(")"),temp.lastIndexOf(")"));
+        temp.remove("cout(");
+        value = temp;
+        nameType = text;
     }else if(text.contains("=",Qt::CaseSensitive)){
         QStringList equalSplit = text.split("=");
         nameType = equalSplit.at(0);
@@ -197,9 +212,6 @@ QStringList MainWindow::identifyStart(QString text)
     } else if(nameType.contains("char",Qt::CaseSensitive)){
         type = "char";
         name = nameType.remove("char",Qt::CaseSensitive).remove(" ").remove("\n");
-    } else if(nameType.contains("reference",Qt::CaseSensitive)){
-        type = "reference";
-        name = nameType.remove("reference",Qt::CaseSensitive).remove(" ").remove("\n");
     } else if(nameType.contains("float",Qt::CaseSensitive)){
         type = "float";
         name = nameType.remove("float",Qt::CaseSensitive).remove(" ").remove("\n");
@@ -216,11 +228,7 @@ QStringList MainWindow::identifyStart(QString text)
     }
 
     QStringList package;
-    package << type << name << value << scope<<contains<<endScope<<structName<<whileContains;;
-    QString tempName =package.join("\n");
-    ui->applicationLogTextEdit->setText(tempName);
-
-
+    package << type << name << value << scope<<contains<<endScope<<structName<<whileContains<<pointFlag;;
     return package;
 }
 
@@ -259,6 +267,7 @@ void MainWindow::ramView(QString memory, QString value, QString name, QString re
     ui->valueTextEdit->append(value);
     ui->nameTextEdit->append(name);
     ui->referenceTextEdit->append(reference);
+    alignText();
 }
 
 void MainWindow::readBuffer(){
@@ -289,6 +298,7 @@ void MainWindow::readBuffer(){
                 ui->valueTextEdit->append("NULL");
                 ui->referenceTextEdit->append(variableReference);
             }
+            alignText();
         }
         else if(referenceFlag == "true2"){
             QString referenceText= ui->referenceTextEdit->toPlainText();
@@ -305,8 +315,9 @@ void MainWindow::readBuffer(){
                 num =num+1;
                 referenceList[memoryList.indexOf(variableAddresses)] = QString::number(num);
                 QString temp =referenceList.join("\n");
-                ui->valueTextEdit->setText(temp);
+                ui->referenceTextEdit->setText(temp);  
             }
+            alignText();
 
 
         }else{
@@ -316,6 +327,7 @@ void MainWindow::readBuffer(){
             QString text = ui->nameTextEdit->toPlainText();
             QStringList textList = text.split("\n");
 
+
         if(textList.contains(name)){
             QString value = QString::fromStdString(jsonBuffer["value"]);
             QString valueText= ui->valueTextEdit->toPlainText();
@@ -323,6 +335,7 @@ void MainWindow::readBuffer(){
             valueList[textList.indexOf(name)]= value;
             QString temp =valueList.join("\n");
             ui->valueTextEdit->setText(temp);
+            alignText();
 
         }else if(type =="cout"){
             cout(jsonBuffer["value"]);
@@ -357,6 +370,7 @@ void MainWindow::readBuffer(){
             ui->valueTextEdit->setText(tempValue);
             ui->memoryTextEdit->setText(tempMemory);
             ui->referenceTextEdit->setText(tempReference);
+            alignText();
         }
         else{
             QString value = QString::fromStdString(jsonBuffer["value"]);
@@ -393,12 +407,11 @@ void MainWindow::structJson(std::list<QStringList> structList, string structName
     j["type"] =types;
     j["name"] = structName;
     j["struct"] = true;
-    ui->terminalTextEdit->append(QString::fromStdString(j.dump()));
+
 
     memset(buffer,0,255);
     string jsonString = j.dump();
     QString display = QString::fromStdString(jsonString);
-    ui->terminalTextEdit->append("\n"+display);
     strncpy(buffer, jsonString.c_str(),255);
     int n = write(sockfd,buffer,strlen(buffer));
     ui->applicationLogTextEdit->append("INFO       Sending Json to server");
@@ -467,26 +480,25 @@ void MainWindow::on_nextButton_clicked()
             std::vector<std::vector<QStringList>> whileVector = this->getWhileVector();
             int whileVectorSize = whileVector.size();
             if(whileVectorSize-1 < whileNum){
-                std::cout <<"pasando" << std::endl;
+
                 std::vector<QStringList> element;
                 whileVector.push_back(element);
             }
             whileVectorSize = whileVector.size();
             for(int i = 0; i < whileVectorSize; i++){
                 whileVector[i].push_back(package);
-                std::cout <<"Primer for"<< i << std::endl;
+
             } this->setWhileVector(whileVector);
             if(package.at(5) == "true"){
-                std::cout <<"Igual a True" << std::endl;
+
                 std::list<QStringList> newMainList = this->getMainList();;
                 std::vector<QStringList> element = this->getWhileVector()[whileNum];
-                std::cout <<"Primer tamaño" <<this->getMainList().size() << std::endl;
+
                 int elementSize = element.size();
                 for(int i = 0;i < elementSize; i++){
                     newMainList.push_back(element[i]);
-                    std::cout <<"Segundo for"<< i << std::endl;
                 } this->setMainList(newMainList);
-                std::cout << "Segundo tamaño" <<this->getMainList().size() << std::endl;
+
                 std::vector<std::vector<QStringList>> whileVector = this->getWhileVector();
                 whileVector[whileNum].clear();
                 this->setWhileVector(whileVector);
@@ -537,8 +549,6 @@ void MainWindow::on_nextButton_clicked()
                     j["scope"] = "Ended";
                     memset(buffer,0,255);
                     string jsonString = j.dump();
-                    QString display = QString::fromStdString(jsonString);
-                    ui->terminalTextEdit->append("\n"+display);
                     strncpy(buffer, jsonString.c_str(),255);
                     int n = write(sockfd,buffer,strlen(buffer));
                     ui->applicationLogTextEdit->append("INFO       Sending Json to server");
@@ -550,8 +560,6 @@ void MainWindow::on_nextButton_clicked()
                     j["scope"] = "Started";
                     memset(buffer,0,255);
                     string jsonString = j.dump();
-                    QString display = QString::fromStdString(jsonString);
-                    ui->terminalTextEdit->append("\n"+display);
                     strncpy(buffer, jsonString.c_str(),255);
                     int n = write(sockfd,buffer,strlen(buffer));
                     ui->applicationLogTextEdit->append("INFO       Sending Json to server");
@@ -567,6 +575,9 @@ void MainWindow::on_nextButton_clicked()
                 j["value"] = package.at(2).toStdString();
                 j["scope"] = package.at(3).toStdString();
                 j["ifFlag"] = "false";
+                if(package.at(8)=="true")
+                { j["pointFlag"]= true;}
+                else{j["pointFlag"]= false;}
 
                 for(QString structName:getStructName()){
                     if(package.at(1).contains(structName)){
@@ -597,8 +608,6 @@ void MainWindow::on_nextButton_clicked()
                 if(j.at("name") != ""){
                     memset(buffer,0,255);
                     string jsonString = j.dump();
-                    QString display = QString::fromStdString(jsonString);
-                    ui->terminalTextEdit->append("\n"+display);
                     strncpy(buffer, jsonString.c_str(),255);
                     int n = write(sockfd,buffer,strlen(buffer));
                     ui->applicationLogTextEdit->append("INFO       Sending Json to server");
@@ -617,7 +626,7 @@ void MainWindow::cout(string newText){
     QString textDisplay = QString::fromStdString(newText);
     textDisplay.insert(0,' ');
     textDisplay.insert(0,'>');
-    ui->applicationLogTextEdit->append(textDisplay);
+    ui->terminalTextEdit->append(textDisplay);
 }
 
 
@@ -666,12 +675,38 @@ void MainWindow::on_backButton_clicked() {
 
 void MainWindow::on_deleteButton_clicked()
 {
-    ui->textEdit->clear();
-    ui->memoryTextEdit->setText("Memory");
-    ui->valueTextEdit->setText("Value");
-    ui->nameTextEdit->setText("Name");
-    ui->referenceTextEdit->setText("Reference");
+    // ui->textEdit->clear();
+    ui->memoryTextEdit->setText("ADRESS");
+    ui->valueTextEdit->setText("VALUE");
+    ui->nameTextEdit->setText("NAME");
+    ui->referenceTextEdit->setText("REFERENCES");
 
+    std::list<QStringList> list;
+    setMainList(list);
+
+    string deleteCode =  "DELETE_CODE";
+    memset(buffer,0,255);
+    strncpy(buffer, deleteCode.c_str(),255);
+    int n = write(sockfd,buffer,strlen(buffer));
+    ui->applicationLogTextEdit->append("INFO       Sending Json to server");
+    if (n < 0){serverError("ERROR writing to socket");}
+
+    alignText();
+
+}
+
+
+void MainWindow::alignText(){
+    std::vector<QTextEdit*> alignmentList;
+    alignmentList.push_back(ui->memoryTextEdit);
+    alignmentList.push_back(ui->valueTextEdit);
+    alignmentList.push_back(ui->nameTextEdit);
+    alignmentList.push_back(ui->referenceTextEdit);
+
+    int i;
+    for (i=0; i<alignmentList.size();i++){
+        alignmentList[i]->setAlignment(Qt::AlignCenter);
+    }
 }
 
 
@@ -679,8 +714,6 @@ QStringList MainWindow::getStructName(){return this->structNames;}
 void MainWindow::setStructName(QStringList list){this->structNames=list;}
 bool MainWindow::getTrueIf(){return this->trueIf;}
 void MainWindow::setTrueIf(bool flag){this->trueIf = flag;}
-bool MainWindow::getStopFlag(){return this->stopFlag;}
-void MainWindow::setStopFlag(bool flag){this->stopFlag = flag;}
 void MainWindow::setMainList(std::list<QStringList> newList){this->mainList = newList;}
 std::list<QStringList> MainWindow::getMainList(){ return this->mainList;}
 int MainWindow::getScopeNum(){return this->scopeNum;}

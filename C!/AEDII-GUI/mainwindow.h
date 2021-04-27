@@ -102,5 +102,6 @@ private:
     void structJson(std::list<QStringList> structList, string structName);
     std::list<std::list<QStringList>> whileList;
     std::vector<std::vector<QStringList>> whileVector;
+    void alignText();
 };
 #endif // MAINWINDOW_H
