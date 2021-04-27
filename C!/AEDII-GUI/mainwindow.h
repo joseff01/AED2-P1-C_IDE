@@ -72,7 +72,6 @@ private slots:
      */
     void on_deleteButton_clicked();
 
-
 private:
     Ui::MainWindow *ui;
     std::list<QStringList> mainList;

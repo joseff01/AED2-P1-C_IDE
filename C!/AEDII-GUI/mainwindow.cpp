@@ -123,6 +123,7 @@ QStringList MainWindow::identifyStart(QString text)
     QString structName = "Null";
     QString whileContains = "Null";
     QString pointFlag = "false";
+    QString getAdressFlag = "false";
 
     //While condition
     /*
@@ -190,11 +191,20 @@ QStringList MainWindow::identifyStart(QString text)
         temp.remove(temp.lastIndexOf(")"),temp.lastIndexOf(")"));
         temp.remove("cout(");
         value = temp;
+        if(value.contains("getaddr")){
+            value = value.remove("getaddr(").remove(")");
+            getAdressFlag = "true";
+        }
         nameType = text;
+
     }else if(text.contains("=",Qt::CaseSensitive)){
         QStringList equalSplit = text.split("=");
         nameType = equalSplit.at(0);
         value = equalSplit.at(1);
+        if(value.contains("getaddr")){
+            value = value.remove("getaddr(").remove(")");
+            getAdressFlag = "true";
+        }
     } else {
         nameType = text;
         value = "NULL";
@@ -228,7 +238,7 @@ QStringList MainWindow::identifyStart(QString text)
     }
 
     QStringList package;
-    package << type << name << value << scope<<contains<<endScope<<structName<<whileContains<<pointFlag;;
+    package << type << name << value << scope<<contains<<endScope<<structName<<whileContains<<pointFlag<< getAdressFlag;;
     return package;
 }
 
@@ -411,7 +421,6 @@ void MainWindow::structJson(std::list<QStringList> structList, string structName
 
     memset(buffer,0,255);
     string jsonString = j.dump();
-    QString display = QString::fromStdString(jsonString);
     strncpy(buffer, jsonString.c_str(),255);
     int n = write(sockfd,buffer,strlen(buffer));
     ui->applicationLogTextEdit->append("INFO       Sending Json to server");
@@ -569,7 +578,6 @@ void MainWindow::on_nextButton_clicked()
                     }
                 }lastScope = package.at(3).toInt();
 
-                j;
                 j["type"] = type.toStdString();
                 j["name"] = package.at(1).toStdString();
                 j["value"] = package.at(2).toStdString();
@@ -578,6 +586,7 @@ void MainWindow::on_nextButton_clicked()
                 if(package.at(8)=="true")
                 { j["pointFlag"]= true;}
                 else{j["pointFlag"]= false;}
+                j["getAdressFlag"] = package.at(9).toStdString();
 
                 for(QString structName:getStructName()){
                     if(package.at(1).contains(structName)){
