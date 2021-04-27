@@ -21,6 +21,8 @@ char buffer[255];
 void serverError(const char *msg);
 //Scope variables
 int lastScope;
+int whileNum = -1;
+int max = 5;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -42,7 +44,7 @@ MainWindow::~MainWindow() {
 * Returns a list with the identified type,name and value.
 */
 
-void MainWindow::ifAndElse(QString text){
+string MainWindow::ifAndElse(QString text,bool isWhile){
     QString textSend = text.remove("(");
     json sendText;
     sendText["type"] = "NULL";
@@ -75,16 +77,21 @@ void MainWindow::ifAndElse(QString text){
         string value = jsonBuffer["value"];
 
         if("true"==value){
-            setTrueIf(true);
+            if(!isWhile){
+                setTrueIf(true);
+            }return "true";
         }
         else{
-            setTrueIf(false);
+            if(!isWhile){
+                setTrueIf(false);
+            }return "false";
         }
     }
     else{
         string newstr(buffer);
         QString str = QString::fromStdString(newstr);
         ui->applicationLogTextEdit->append(str);
+        return "error";
     }
 }
 
@@ -98,6 +105,7 @@ QStringList MainWindow::identifyStart(QString text)
     QString contains = "Null";
     QString endScope = "false";
     QString structName = "Null";
+    QString whileContains = "Null";
 
     //While condition
     /*
@@ -122,19 +130,25 @@ QStringList MainWindow::identifyStart(QString text)
 
     //If definition
     if (text.contains("if")){
-        text.remove("if("); //x == 1      {int a = 0
+        text.remove("if(");
         QStringList ifSplit = text.split(")");
         contains = ifSplit.at(0);
         text = ifSplit.at(1);
-        ui->applicationLogTextEdit->setText(text);
     }
     if(text.contains("struct",Qt::CaseSensitive)){
         QStringList structList = text.split("{");
         structName = structList.at(0);
         structName = structName.remove("struct");
         text = "{"+structList.at(1);
-
     }
+    if (text.contains("while")){
+        text.remove("while(");
+        QStringList ifSplit = text.split(")");
+        whileContains = ifSplit.at(0);
+        text = ifSplit.at(1);
+        ui->applicationLogTextEdit->setText(text);
+    }
+
 
     //Scope  definition
 
@@ -185,7 +199,7 @@ QStringList MainWindow::identifyStart(QString text)
     }
 
     QStringList package;
-    package << type << name << value << scope<<contains<<endScope<<structName;;
+    package << type << name << value << scope<<contains<<endScope<<structName<<whileContains;;
     return package;
 }
 
@@ -332,9 +346,11 @@ void MainWindow::structJson(std::list<QStringList> structList, string structName
 
 }
 
+
 void MainWindow::on_nextButton_clicked()
 {
     if(!this->getMainList().empty()){
+
         QStringList package = this->getMainList().front();
         std::list<QStringList> temp = this->getMainList();
         temp.pop_front();
@@ -344,6 +360,42 @@ void MainWindow::on_nextButton_clicked()
         QString cont = package.at(4);
         QString endScope = package.at(5);
         QString structName = package.at(6);
+        QString containsWhile= package.at(7);
+
+        /*bool  whileFlag;
+        int num;
+        int max = 5;
+
+        if(hay un while){
+        enviarle la vara a jose para que nos idque  true o false;
+        if whileflag activado{
+          num = num+1;
+          } else avanzar hasta lastScope.
+        }
+
+        if (num =!-1){ // {int a = a+1; while(algo){ b = b+1; c = c+3;}}
+        int i;
+        for(int i = 0; i<=num; i++){ agregar package a todas las listas}
+        if(hay endscope){
+            agregar whileList.at(num) a mainList;
+            eliminar whilelist.at(num)
+            num -1;
+          }
+        }*/
+
+        if(containsWhile!="Null"){
+            string booleanWhile = ifAndElse(containsWhile, false);
+            if(booleanWhile =="true"){
+                whileNum = whileNum +1;
+            }else{
+
+            }
+
+            //enviar a jose
+
+
+        }
+
 
         if(structName!="Null"){
             QString currentScope= endScope;
@@ -374,7 +426,7 @@ void MainWindow::on_nextButton_clicked()
                     setTrueIf(true);
                 }
             } else if(cont != "Null"){
-                ifAndElse(cont);
+                ifAndElse(cont, false);
             }
             if(endScope.contains("true")){ setTrueIf(true);}
 
@@ -527,11 +579,6 @@ void MainWindow::on_deleteButton_clicked()
 
 }
 
-void MainWindow::on_pushButton_2_clicked()
-{
-
-
-}
 
 QStringList MainWindow::getStructName(){return this->structNames;}
 void MainWindow::setStructName(QStringList list){this->structNames=list;}
@@ -543,3 +590,5 @@ void MainWindow::setMainList(std::list<QStringList> newList){this->mainList = ne
 std::list<QStringList> MainWindow::getMainList(){ return this->mainList;}
 int MainWindow::getScopeNum(){return this->scopeNum;}
 void MainWindow::setScopeNum(int scopeNum){this->scopeNum = scopeNum;}
+std::list<std::list<QStringList>> MainWindow::getWhileList(){return this->whileList;}
+void MainWindow::setWhileList(std::list<std::list<QStringList>> list){this->whileList=list;}
