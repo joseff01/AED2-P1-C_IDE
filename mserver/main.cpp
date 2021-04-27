@@ -58,6 +58,7 @@ void resetMemory(){
     structTypeToOffsetsVectorMap.clear();
     structToNamesVectorMap.clear();
     structToTypesVectorMap.clear();
+    refToVariableType.clear();
     mainOffset = 0;
     currentScope = 0;
     free(startAdress);
@@ -90,11 +91,57 @@ string getVariableValue(string variableName){
             long* correctVariableAdress = (long*) variableAdress;
             long variableValue = *correctVariableAdress;
             return to_string(variableValue);
-        } else{
+        } else if (variableType == "char"){
             char variableValue = *variableAdress;
             string s;
             s += variableValue;
             return s;
+        } else {
+            return "ERROR";
+        }
+    }else if(variableName.find(".getValue()") != std::string::npos){
+        string modifiedReferenceName = variableName.substr(0,variableName.size()-11);
+        if ((nameToOffsetMap.count(modifiedReferenceName) > 0) && (nameToTypeMap[modifiedReferenceName] == "reference")){
+            int referenceOffset = nameToOffsetMap[modifiedReferenceName];
+            char* referenceAdress = (char*) startAdress;
+            referenceAdress = referenceAdress + referenceOffset;
+
+            int variableOffset = *referenceAdress;
+            char* variableAdress = (char*) startAdress;
+            variableAdress = variableAdress + variableOffset;
+
+            string variableType = refToVariableType[modifiedReferenceName];
+
+            if (variableType == "int"){
+                int* correctVariableAdress = (int*) variableAdress;
+                int variableValue = *correctVariableAdress;
+                return to_string(variableValue);
+            } else if (variableType == "float"){
+                float* correctVariableAdress = (float*) variableAdress;
+                float variableValue = *correctVariableAdress;
+                return to_string(variableValue);
+            } else if (variableType == "double"){
+                double* correctVariableAdress = (double*) variableAdress;
+                double variableValue = *correctVariableAdress;
+                stringstream ss;
+                ss << setprecision(15) << variableValue;
+                string variableValueDouble;
+                ss >> variableValueDouble;
+                return variableValueDouble;
+            } else if (variableType == "long"){
+                long* correctVariableAdress = (long*) variableAdress;
+                long variableValue = *correctVariableAdress;
+                return to_string(variableValue);
+            } else if (variableType == "char"){
+                char variableValue = *variableAdress;
+                string s;
+                s += variableValue;
+                return s;
+            } else {
+                return "ERROR";
+            }
+        } else{
+            return "ERROR";
         }
     }else{
         return "ERROR";
@@ -237,9 +284,25 @@ vector<string> removeScopeMemory(){
                 long* correctVariableAdress = (long*) variableAdress;
                 *correctVariableAdress = 0;
                 sizeOfVariable = 8;
-            } else{
+            } else if (variableType == "string"){
                 *variableAdress = '\0';
                 sizeOfVariable = 1;
+            } else if (variableType == "reference"){
+                int* correctVariableAdress = (int*) variableAdress;
+                *correctVariableAdress = 0;
+                sizeOfVariable = 4;
+            } else {
+                string invalidRef = variableName;
+                string storageError ="ERROR  " + variableName + " not properly identified during elimination";
+                cout << storageError << endl;
+                memset(buffer,0,255);
+                strncpy(buffer, storageError.c_str(),255);
+                int n = write(newsockfd,buffer,strlen(buffer));
+                if (n < 0){
+                    error("ERROR writing to socket");
+                }
+                resetMemory();
+                error("FATAL ERROR Llame a Jose si ve esto");
             }
             mainOffset = mainOffset - sizeOfVariable;
             nameToOffsetMap.erase(variableName);
@@ -337,7 +400,6 @@ void analizeBuffer(){
             } else if(nameToTypeMap.count(jsonBuffer["value"]) > 0){
                 if (jsonBuffer["type"] == nameToTypeMap[jsonBuffer["value"]]){
                     if(jsonBuffer["getAdressFlag"] == "true"){
-
                         string refName = jsonBuffer["name"];
 
                         string refType = jsonBuffer["type"];
@@ -665,7 +727,16 @@ void analizeBuffer(){
                     } else if (variableTypes[i] == "char"){
                         mainOffset = mainOffset + 1;
                     } else{
-                        error("struct with invalid attribute type");
+                        string storageError ="ERROR   " + variableNames[i] + " is not supported in Structs";
+                        cout << storageError << endl;
+                        memset(buffer,0,255);
+                        strncpy(buffer, storageError.c_str(),255);
+                        int n = write(newsockfd,buffer,strlen(buffer));
+                        if (n < 0){
+                            error("ERROR writing to socket");
+                        }
+                        resetMemory();
+                        return;
                     }
                     string variableScopeString = jsonBuffer["scope"];
                     int variableScope = stoi(variableScopeString);
