@@ -67,9 +67,6 @@ string MainWindow::ifAndElse(QString text,bool isWhile){
 
     memset(buffer,0,255);
     string jsonString = sendText.dump();
-    QString display = QString::fromStdString(jsonString);
-    ui->terminalTextEdit->append("\n"+display);
-
     strncpy(buffer, jsonString.c_str(),255);
     int n = write(sockfd,buffer,strlen(buffer));
     ui->applicationLogTextEdit->append("INFO       Sending Json verification to server");
@@ -225,10 +222,6 @@ QStringList MainWindow::identifyStart(QString text)
 
     QStringList package;
     package << type << name << value << scope<<contains<<endScope<<structName<<whileContains<<pointFlag;;
-    QString tempName =package.join("\n");
-    ui->applicationLogTextEdit->setText(tempName);
-
-
     return package;
 }
 
@@ -267,6 +260,7 @@ void MainWindow::ramView(QString memory, QString value, QString name, QString re
     ui->valueTextEdit->append(value);
     ui->nameTextEdit->append(name);
     ui->referenceTextEdit->append(reference);
+    alignText();
 }
 
 void MainWindow::readBuffer(){
@@ -297,6 +291,7 @@ void MainWindow::readBuffer(){
                 ui->valueTextEdit->append("NULL");
                 ui->referenceTextEdit->append(variableReference);
             }
+            alignText();
         }
         else if(referenceFlag == "true2"){
             QString referenceText= ui->referenceTextEdit->toPlainText();
@@ -313,8 +308,9 @@ void MainWindow::readBuffer(){
                 num =num+1;
                 referenceList[memoryList.indexOf(variableAddresses)] = QString::number(num);
                 QString temp =referenceList.join("\n");
-                ui->referenceTextEdit->setText(temp);
+                ui->referenceTextEdit->setText(temp);  
             }
+            alignText();
 
 
         }else{
@@ -324,6 +320,7 @@ void MainWindow::readBuffer(){
             QString text = ui->nameTextEdit->toPlainText();
             QStringList textList = text.split("\n");
 
+
         if(textList.contains(name)){
             QString value = QString::fromStdString(jsonBuffer["value"]);
             QString valueText= ui->valueTextEdit->toPlainText();
@@ -331,6 +328,7 @@ void MainWindow::readBuffer(){
             valueList[textList.indexOf(name)]= value;
             QString temp =valueList.join("\n");
             ui->valueTextEdit->setText(temp);
+            alignText();
 
         }else if(type =="cout"){
             cout(jsonBuffer["value"]);
@@ -365,6 +363,7 @@ void MainWindow::readBuffer(){
             ui->valueTextEdit->setText(tempValue);
             ui->memoryTextEdit->setText(tempMemory);
             ui->referenceTextEdit->setText(tempReference);
+            alignText();
         }
         else{
             QString value = QString::fromStdString(jsonBuffer["value"]);
@@ -401,12 +400,11 @@ void MainWindow::structJson(std::list<QStringList> structList, string structName
     j["type"] =types;
     j["name"] = structName;
     j["struct"] = true;
-    ui->terminalTextEdit->append(QString::fromStdString(j.dump()));
+
 
     memset(buffer,0,255);
     string jsonString = j.dump();
     QString display = QString::fromStdString(jsonString);
-    ui->terminalTextEdit->append("\n"+display);
     strncpy(buffer, jsonString.c_str(),255);
     int n = write(sockfd,buffer,strlen(buffer));
     ui->applicationLogTextEdit->append("INFO       Sending Json to server");
@@ -544,8 +542,6 @@ void MainWindow::on_nextButton_clicked()
                     j["scope"] = "Ended";
                     memset(buffer,0,255);
                     string jsonString = j.dump();
-                    QString display = QString::fromStdString(jsonString);
-                    ui->terminalTextEdit->append("\n"+display);
                     strncpy(buffer, jsonString.c_str(),255);
                     int n = write(sockfd,buffer,strlen(buffer));
                     ui->applicationLogTextEdit->append("INFO       Sending Json to server");
@@ -557,8 +553,6 @@ void MainWindow::on_nextButton_clicked()
                     j["scope"] = "Started";
                     memset(buffer,0,255);
                     string jsonString = j.dump();
-                    QString display = QString::fromStdString(jsonString);
-                    ui->terminalTextEdit->append("\n"+display);
                     strncpy(buffer, jsonString.c_str(),255);
                     int n = write(sockfd,buffer,strlen(buffer));
                     ui->applicationLogTextEdit->append("INFO       Sending Json to server");
@@ -607,8 +601,6 @@ void MainWindow::on_nextButton_clicked()
                 if(j.at("name") != ""){
                     memset(buffer,0,255);
                     string jsonString = j.dump();
-                    QString display = QString::fromStdString(jsonString);
-                    ui->terminalTextEdit->append("\n"+display);
                     strncpy(buffer, jsonString.c_str(),255);
                     int n = write(sockfd,buffer,strlen(buffer));
                     ui->applicationLogTextEdit->append("INFO       Sending Json to server");
@@ -627,7 +619,7 @@ void MainWindow::cout(string newText){
     QString textDisplay = QString::fromStdString(newText);
     textDisplay.insert(0,' ');
     textDisplay.insert(0,'>');
-    ui->applicationLogTextEdit->append(textDisplay);
+    ui->terminalTextEdit->append(textDisplay);
 }
 
 
@@ -676,12 +668,32 @@ void MainWindow::on_backButton_clicked() {
 
 void MainWindow::on_deleteButton_clicked()
 {
-    ui->textEdit->clear();
-    ui->memoryTextEdit->setText("Memory");
-    ui->valueTextEdit->setText("Value");
-    ui->nameTextEdit->setText("Name");
-    ui->referenceTextEdit->setText("Reference");
+    // ui->textEdit->clear();
+    ui->memoryTextEdit->setText("ADRESS");
+    ui->valueTextEdit->setText("VALUE");
+    ui->nameTextEdit->setText("NAME");
+    ui->referenceTextEdit->setText("REFERENCES");
 
+    std::list<QStringList> list;
+    setMainList(list);
+
+    // F A L T A eliminar memoria
+    alignText();
+
+}
+
+
+void MainWindow::alignText(){
+    std::vector<QTextEdit*> alignmentList;
+    alignmentList.push_back(ui->memoryTextEdit);
+    alignmentList.push_back(ui->valueTextEdit);
+    alignmentList.push_back(ui->nameTextEdit);
+    alignmentList.push_back(ui->referenceTextEdit);
+
+    int i;
+    for (i=0; i<alignmentList.size();i++){
+        alignmentList[i]->setAlignment(Qt::AlignCenter);
+    }
 }
 
 
