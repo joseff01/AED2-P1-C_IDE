@@ -106,6 +106,7 @@ QStringList MainWindow::identifyStart(QString text)
     QString endScope = "false";
     QString structName = "Null";
     QString whileContains = "Null";
+    QString couText;
 
     //While condition
     /*
@@ -146,9 +147,7 @@ QStringList MainWindow::identifyStart(QString text)
         QStringList ifSplit = text.split(")");
         whileContains = ifSplit.at(0);
         text = ifSplit.at(1);
-        ui->applicationLogTextEdit->setText(text);
     }
-
 
     //Scope  definition
 
@@ -162,7 +161,12 @@ QStringList MainWindow::identifyStart(QString text)
     } scope = QString::fromStdString(std::to_string(this->getScopeNum()));
 
     //Division by =
-    if(text.contains("=",Qt::CaseSensitive)){
+    if(text.contains("cout")){
+            QString temp = text;
+            temp.remove("cout(").remove(")");
+            value = temp;
+            nameType = text;
+    }else if(text.contains("=",Qt::CaseSensitive)){
         QStringList equalSplit = text.split("=");
         nameType = equalSplit.at(0);
         value = equalSplit.at(1);
@@ -189,6 +193,9 @@ QStringList MainWindow::identifyStart(QString text)
     } else if(nameType.contains("float",Qt::CaseSensitive)){
         type = "float";
         name = nameType.remove("float",Qt::CaseSensitive).remove(" ").remove("\n");
+    }else if(nameType.contains("cout",Qt::CaseSensitive)){
+        type = "cout";
+        name = "NULL";
     }else {
         type = "NULL";
         name = nameType.remove(" ").remove("\n");
@@ -200,6 +207,10 @@ QStringList MainWindow::identifyStart(QString text)
 
     QStringList package;
     package << type << name << value << scope<<contains<<endScope<<structName<<whileContains;;
+    QString tempName =package.join("\n");
+    ui->applicationLogTextEdit->setText(tempName);
+
+
     return package;
 }
 
@@ -252,6 +263,7 @@ void MainWindow::readBuffer(){
         json jsonBuffer = json::parse(buffer);
         QString name = QString::fromStdString(jsonBuffer["name"]);
         QString memory = QString::fromStdString(jsonBuffer["adress"]);
+        QString type = QString::fromStdString(jsonBuffer["adress"]);
         QString text = ui->nameTextEdit->toPlainText();
         QStringList textList = text.split("\n");
 
@@ -262,6 +274,8 @@ void MainWindow::readBuffer(){
             valueList[textList.indexOf(name)]= value;
             QString temp =valueList.join("\n");
             ui->valueTextEdit->setText(temp);
+        }else if(type =="cout"){
+            cout(jsonBuffer["value"]);
         }
         else if(memory == "freeing space"){
             vector<string> value = jsonBuffer["value"];
