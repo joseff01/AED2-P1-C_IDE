@@ -543,7 +543,6 @@ void analizeBuffer(){
                     string variableScopeString = jsonBuffer["scope"];
                     int variableScope = stoi(variableScopeString);
                     string variableName = (string) jsonBuffer["name"] + "." + variableNames[i];
-                    variableNamesVector.push_back(variableName);
                     string variableType = variableTypes[i];
                     nameToOffsetMap.insert(pair<string, int>(variableName,variableOffset));
                     nameToTypeMap.insert(pair<string, string>(variableName,variableType));
