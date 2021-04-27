@@ -33,7 +33,7 @@ map<string,int> nameToScopeMap;
 map<string,vector<int>> structTypeToOffsetsVectorMap;
 map<string,vector<string>> structToTypesVectorMap;
 map<string,vector<string>> structToNamesVectorMap;
-map<string,string> refTo;
+map<string,string> refToVariableType;
 
 void bindingProcess(int* sockfd, int* portno, struct sockaddr_in* serv_addr){
 
@@ -260,47 +260,117 @@ void analizeBuffer(){
         jsonBuffer["referenceFlag"] = "false";
 
         if (jsonBuffer["refFlag"] == "true"){
-            if (jsonBuffer["type"] == nameToTypeMap[jsonBuffer["value"]]){
-                string refName = jsonBuffer["name"];
+            if(nameToTypeMap.count(jsonBuffer["value"]) > 0){
+                if (jsonBuffer["type"] == nameToTypeMap[jsonBuffer["value"]]){
+                    string refName = jsonBuffer["name"];
 
-                string refType = jsonBuffer["type"];
-                string refVariable = jsonBuffer["value"];
-                int offsetVariable = nameToOffsetMap[refVariable];
-                char* refVoidAdress = (char*)  startAdress + mainOffset;
-                int* refAdress = (int*) refVoidAdress;
-                char* variableVoidAdress = (char*)  startAdress + nameToOffsetMap[refVariable];
-                int* variableAdress = (int*) variableVoidAdress;
-                *refAdress = offsetVariable;
+                    string refType = jsonBuffer["type"];
+                    string refVariable = jsonBuffer["value"];
+                    int offsetVariable = nameToOffsetMap[refVariable];
+                    char* refVoidAdress = (char*)  startAdress + mainOffset;
+                    int* refAdress = (int*) refVoidAdress;
+                    char* variableVoidAdress = (char*)  startAdress + nameToOffsetMap[refVariable];
+                    int* variableAdress = (int*) variableVoidAdress;
+                    *refAdress = offsetVariable;
 
-                string refScopeString = jsonBuffer["scope"];
-                int refScope = stoi(refScopeString);
-                cout << refScope << endl;
+                    string refScopeString = jsonBuffer["scope"];
+                    int refScope = stoi(refScopeString);
+                    cout << refScope << endl;
 
-                nameToOffsetMap.insert(pair<string, int>(refName,mainOffset));
-                nameToTypeMap.insert(pair<string, string>(refName,"reference"));
-                nameToScopeMap.insert(pair<string,int>(refName,refScope));
+                    nameToOffsetMap.insert(pair<string, int>(refName,mainOffset));
+                    nameToTypeMap.insert(pair<string, string>(refName,"reference"));
+                    nameToScopeMap.insert(pair<string,int>(refName,refScope));
+                    refToVariableType.insert(pair<string,string>(refName,refType));
 
-                mainOffset = mainOffset + 4;
+                    mainOffset = mainOffset + 4;
 
-                std::stringstream ss1;
-                ss1 << variableAdress;
-                string variableAdressString = ss1.str();
-                std::stringstream ss2;
-                ss2 << refAdress;
-                string refAdressString = ss2.str();
+                    std::stringstream ss1;
+                    ss1 << variableAdress;
+                    string variableAdressString = ss1.str();
+                    std::stringstream ss2;
+                    ss2 << refAdress;
+                    string refAdressString = ss2.str();
 
-                jsonBuffer["adress"] = refAdressString;
-                jsonBuffer["value"] = variableAdressString;
-                string sendJson = jsonBuffer.dump();
-                cout << returningAdress << endl;
-                memset(buffer,0,255);
-                strncpy(buffer, sendJson.c_str(),255);
-                int n = write(newsockfd,buffer,strlen(buffer));
-                if (n < 0){
-                    error("ERROR writing to socket");
+                    jsonBuffer["adress"] = refAdressString;
+                    jsonBuffer["value"] = variableAdressString;
+                    string sendJson = jsonBuffer.dump();
+                    cout << returningAdress << endl;
+                    memset(buffer,0,255);
+                    strncpy(buffer, sendJson.c_str(),255);
+                    int n = write(newsockfd,buffer,strlen(buffer));
+                    if (n < 0){
+                        error("ERROR writing to socket");
+                    }
+
+                } else if (nameToTypeMap[jsonBuffer["value"]] == "reference"){
+                    if (jsonBuffer["type"] == refToVariableType[jsonBuffer["value"]]){
+                        string refName = jsonBuffer["name"];
+
+                        string refType = jsonBuffer["type"];
+                        string secondRefVariable = jsonBuffer["value"];
+
+                        int offsetSecondRef = nameToOffsetMap[secondRefVariable];
+                        char* refVoidAdress = (char*)  startAdress + mainOffset;
+                        int* refAdress = (int*) refVoidAdress;
+                        char* secondRefVoidAdress = (char*)  startAdress + offsetSecondRef;
+                        int* secondRefAdress = (int*) secondRefVoidAdress;
+                        *refAdress = *secondRefAdress;
+                        char* adressToSend = *refAdress + (char*) startAdress;
+
+                        string refScopeString = jsonBuffer["scope"];
+                        int refScope = stoi(refScopeString);
+                        cout << refScope << endl;
+
+                        nameToOffsetMap.insert(pair<string, int>(refName,mainOffset));
+                        nameToTypeMap.insert(pair<string, string>(refName,"reference"));
+                        nameToScopeMap.insert(pair<string,int>(refName,refScope));
+
+                        mainOffset = mainOffset + 4;
+
+                        std::stringstream ss1;
+                        ss1 << adressToSend;
+                        string adressToSendString = ss1.str();
+                        std::stringstream ss2;
+                        ss2 << refAdress;
+                        string refAdressString = ss2.str();
+
+                        jsonBuffer["adress"] = refAdressString;
+                        jsonBuffer["value"] = adressToSendString;
+                        string sendJson = jsonBuffer.dump();
+                        cout << returningAdress << endl;
+                        memset(buffer,0,255);
+                        strncpy(buffer, sendJson.c_str(),255);
+                        int n = write(newsockfd,buffer,strlen(buffer));
+                        if (n < 0){
+                            error("ERROR writing to socket");
+                        }
+                    } else{
+                        string invalidRef = jsonBuffer["value"];
+                        string storageError ="ERROR   expresion " + invalidRef + " cannot be detected";
+                        cout << storageError << endl;
+                        memset(buffer,0,255);
+                        strncpy(buffer, storageError.c_str(),255);
+                        int n = write(newsockfd,buffer,strlen(buffer));
+                        if (n < 0){
+                            error("ERROR writing to socket");
+                        }
+                        resetMemory();
+                        return;
+                    }
+
+                } else{
+                    string invalidRef = jsonBuffer["value"];
+                    string storageError ="ERROR   reference " + invalidRef + " is not of the correct type.";
+                    cout << storageError << endl;
+                    memset(buffer,0,255);
+                    strncpy(buffer, storageError.c_str(),255);
+                    int n = write(newsockfd,buffer,strlen(buffer));
+                    if (n < 0){
+                        error("ERROR writing to socket");
+                    }
+                    resetMemory();
+                    return;
                 }
-            } else{
-
             }
 
         }
@@ -413,6 +483,7 @@ void analizeBuffer(){
                         jsonBuffer["referenceCounter"] = variableReferenceCounter;
                         jsonBuffer["referenceFlag"] = "true2";
                         string sendJson = jsonBuffer.dump();
+                        cout << sendJson << endl;
                         memset(buffer,0,255);
                         strncpy(buffer, sendJson.c_str(),255);
                         int n = write(newsockfd,buffer,strlen(buffer));
@@ -454,6 +525,7 @@ void analizeBuffer(){
                 for (int i = 0; i < variableAmount; i++){
                     char* variableAdress = (char*) startAdress;
                     variableAdress = variableAdress + mainOffset;
+                    void* adressToSend = variableAdress;
                     int variableOffset = mainOffset;
                     if (variableTypes[i] == "int"){
                         mainOffset = mainOffset + 4;
@@ -477,7 +549,7 @@ void analizeBuffer(){
                     nameToTypeMap.insert(pair<string, string>(variableName,variableType));
                     nameToScopeMap.insert(pair<string,int>(variableName,variableScope));
                     stringstream ss;
-                    ss << variableAdress;
+                    ss << adressToSend;
                     string returningAdressString = ss.str();
                     jsonBuffer["referenceCounter"] = "1";
                     jsonBuffer["referenceFlag"] = "true1";
@@ -492,6 +564,7 @@ void analizeBuffer(){
                 jsonBuffer["referenceCounter"] = variableReferenceCounter;
                 jsonBuffer["value"] = variableNamesVector;
                 string sendJson = jsonBuffer.dump();
+                cout << sendJson << endl;
                 memset(buffer,0,255);
                 strncpy(buffer, sendJson.c_str(),255);
                 int n = write(newsockfd,buffer,strlen(buffer));
