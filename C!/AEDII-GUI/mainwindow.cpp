@@ -12,17 +12,6 @@
 #include <netdb.h>
 #include <iostream>
 
-/*
- * struct book {
-int a;
-int b;
-}
-
-book pito;
-
-pito.a =3;
-pito.b =4;
-*/
 
 using json = nlohmann::json;
 
@@ -458,27 +447,6 @@ void MainWindow::on_nextButton_clicked()
         QString structName = package.at(6);
         QString containsWhile= package.at(7);
 
-        /*bool  whileFlag;
-        int num;
-        int max = 5;
-
-        if(hay un while){
-        enviarle la vara a jose para que nos idque  true o false;
-        if whileflag activado{
-          num = num+1;
-          } else avanzar hasta lastScope.
-        }
-
-        if (num =!-1){ // {int a = a+1; while(algo){ b = b+1; c = c+3;}}
-        int i;
-        for(int i = 0; i<=num; i++){ agregar package a todas las listas}
-        if(hay endscope){
-            agregar whileList.at(num) a mainList;
-            eliminar whilelist.at(num)
-            num -1;
-          }
-        }*/
-
         if(containsWhile!="Null"){
             string booleanWhile = ifAndElse(containsWhile, true);
             if(booleanWhile =="true"){
@@ -740,7 +708,5 @@ void MainWindow::setMainList(std::list<QStringList> newList){this->mainList = ne
 std::list<QStringList> MainWindow::getMainList(){ return this->mainList;}
 int MainWindow::getScopeNum(){return this->scopeNum;}
 void MainWindow::setScopeNum(int scopeNum){this->scopeNum = scopeNum;}
-std::list<std::list<QStringList>> MainWindow::getWhileList(){return this->whileList;}
-void MainWindow::setWhileList(std::list<std::list<QStringList>> list){this->whileList=list;}
 std::vector<std::vector<QStringList>> MainWindow::getWhileVector(){return this->whileVector;}
 void MainWindow::setWhileVector(std::vector<std::vector<QStringList>> vector){this->whileVector=vector;};
