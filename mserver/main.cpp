@@ -933,8 +933,7 @@ void analizeBuffer(){
                                     }
                                     resetMemory();
                                     return;
-
-                                } else if (refToVariableType[jsonBuffer["type"]] == refToVariableType[jsonBuffer["value"]]){
+                                } else if (refToVariableType[jsonBuffer["name"]] == refToVariableType[jsonBuffer["value"]]){
                                     string refName = jsonBuffer["name"];
 
                                     string refType = jsonBuffer["type"];
