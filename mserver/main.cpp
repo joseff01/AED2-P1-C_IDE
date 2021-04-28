@@ -29,12 +29,13 @@ void* startAdress;
 int mainOffset = 0;
 int currentScope = 0;
 map<string,int> nameToOffsetMap;
-map<string,string> nameToTypeMap;
 map<string,int> nameToScopeMap;
+map<string,string> nameToTypeMap;
+map<string,string> refToVariableType;
 map<string,vector<int>> structTypeToOffsetsVectorMap;
 map<string,vector<string>> structToTypesVectorMap;
 map<string,vector<string>> structToNamesVectorMap;
-map<string,string> refToVariableType;
+
 
 void bindingProcess(int* sockfd, int* portno, struct sockaddr_in* serv_addr){
 
@@ -201,6 +202,13 @@ bool checkBooleanValueOfExpression(string stringExpression){
         auto b = checkNumericalValueOfExpression(split.at(1).toStdString());
         cout << "a: " << a << "    b: " << b << endl;
         return (a < b);
+    } else {
+        double d = checkNumericalValueOfExpression(qExpression.toStdString());
+        if (d){
+            return true;
+        } else{
+            return false;
+        }
     }
 }
 
@@ -526,6 +534,7 @@ void analizeBuffer(){
 
                         jsonBuffer["adress"] = refAdressString;
                         jsonBuffer["value"] = adressToSendString;
+                        jsonBuffer["referenceFlag"] = "true3";
                         string sendJson = jsonBuffer.dump();
                         cout << returningAdress << endl;
                         memset(buffer,0,255);
