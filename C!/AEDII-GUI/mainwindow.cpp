@@ -319,6 +319,9 @@ void MainWindow::readBuffer(){
             alignText();
         }else if(referenceFlag == "true3"){
             QString value = QString::fromStdString(jsonBuffer["value"]);
+            QString name = QString::fromStdString(jsonBuffer["name"]);
+            QString reference = QString::fromStdString(jsonBuffer["referenceCounter"]);
+            QString memoryVal = QString::fromStdString(jsonBuffer["adress"]);
             QString memory = ui->memoryTextEdit->toPlainText();
             QStringList memoryList = memory.split("\n");
             QString referenceText= ui->referenceTextEdit->toPlainText();
@@ -330,6 +333,10 @@ void MainWindow::readBuffer(){
             QString temp =referenceList.join("\n");
             ui->referenceTextEdit->setText(temp);
             ui->referenceTextEdit->setAlignment(Qt::AlignCenter);
+            ui->valueTextEdit->append(value);
+            ui->memoryTextEdit->append(memoryVal);
+            ui->nameTextEdit->append(name);
+            ui->referenceTextEdit->append(reference);
         }
 
         else{

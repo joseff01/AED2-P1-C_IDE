@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1087</width>
+    <width>1131</width>
     <height>746</height>
    </rect>
   </property>
@@ -160,11 +160,11 @@ font: 75 12pt &quot;Waree&quot;;</string>
      <rect>
       <x>600</x>
       <y>40</y>
-      <width>471</width>
+      <width>521</width>
       <height>661</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="13,10,11,10">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="13,10,13,9">
      <property name="spacing">
       <number>0</number>
      </property>
@@ -315,7 +315,7 @@ selection-color: rgb(238, 238, 236);</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1087</width>
+     <width>1131</width>
      <height>22</height>
     </rect>
    </property>
