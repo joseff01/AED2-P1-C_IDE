@@ -15,6 +15,7 @@
 using namespace std;
 using json = nlohmann::json;
 
+
 void error(const char *msg)
 {
     perror(msg);
@@ -35,6 +36,7 @@ map<string,string> refToVariableType;
 map<string,vector<int>> structTypeToOffsetsVectorMap;
 map<string,vector<string>> structToTypesVectorMap;
 map<string,vector<string>> structToNamesVectorMap;
+
 
 
 void bindingProcess(int* sockfd, int* portno, struct sockaddr_in* serv_addr){
@@ -261,6 +263,7 @@ double checkNumericalValueOfExpression(string stringExpression){
 
    }
 
+
 vector<string> removeScopeMemory(){
     vector<string> listOfNames;
     for (auto const& element : nameToScopeMap){
@@ -323,6 +326,7 @@ vector<string> removeScopeMemory(){
     currentScope = currentScope - 1;
     return eliminatedVariableNames;
 }
+
 
 void analizeBuffer(){
     string strBuffer(buffer);
@@ -1454,6 +1458,7 @@ void readBuffer(){
     if (n < 0) error("ERROR reading from socket");
     printf("Message received: %s\n",buffer);
 }
+
 
 int main(int argc, char *argv[])
 {
