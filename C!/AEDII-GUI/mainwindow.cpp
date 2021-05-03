@@ -95,6 +95,7 @@ string MainWindow::ifAndElse(QString text,bool isWhile){
         string newstr(buffer);
         QString str = QString::fromStdString(newstr);
         ui->applicationLogTextEdit->append(str);
+        setTrueIf(false);
         return "error";
         on_deleteButton_clicked();
     }
@@ -530,7 +531,8 @@ void MainWindow::on_nextButton_clicked()
                     setTrueIf(true);
                 }
             } else if(cont != "Null"){
-                ifAndElse(cont, false);
+                string flag = ifAndElse(cont, false);
+                if(flag == "error"){on_deleteButton_clicked();}
             }
             if(endScope.contains("true")){ setTrueIf(true);}
 
