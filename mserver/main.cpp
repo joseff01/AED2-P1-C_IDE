@@ -526,6 +526,7 @@ void analizeBuffer(){
                         nameToOffsetMap.insert(pair<string, int>(refName,mainOffset));
                         nameToTypeMap.insert(pair<string, string>(refName,"reference"));
                         nameToScopeMap.insert(pair<string,int>(refName,refScope));
+                        refToVariableType.insert(pair<string,string>(refName,refType));
 
                         mainOffset = mainOffset + 4;
 
@@ -561,6 +562,7 @@ void analizeBuffer(){
                         resetMemory();
                         return;
                     }
+
                 } else{
                     string invalidRef = jsonBuffer["value"];
                     string storageError ="ERROR   expression " + invalidRef + " cannot be properly detected.";
@@ -885,6 +887,7 @@ void analizeBuffer(){
 
                                     *refAdress = offsetVariable;
 
+                                    void* oldAdress = refVoidAdress;
                                     void* adressToSend = refAdress;
                                     void* variableAdressToSend = variableAdress;
 
@@ -894,9 +897,14 @@ void analizeBuffer(){
                                     std::stringstream ss2;
                                     ss2 << adressToSend;
                                     string refAdressString = ss2.str();
+                                    std::stringstream ss3;
+                                    ss3 << oldAdress;
+                                    string oldAdressString = ss3.str();
 
                                     jsonBuffer["adress"] = refAdressString;
                                     jsonBuffer["value"] = variableAdressString;
+                                    jsonBuffer["referenceFlag"] = "true4";
+                                    jsonBuffer["oldAdress"] = oldAdressString;
                                     string sendJson = jsonBuffer.dump();
                                     cout << returningAdress << endl;
                                     memset(buffer,0,255);
@@ -921,6 +929,8 @@ void analizeBuffer(){
                                 }
 
                             } else if (nameToTypeMap[jsonBuffer["value"]] == "reference"){
+                                cout << refToVariableType[jsonBuffer["name"]] << endl;
+                                cout << refToVariableType[jsonBuffer["value"]] << endl;
                                 if(jsonBuffer["getAdressFlag"] == "true"){
                                     string invalidRef = jsonBuffer["value"];
                                     string storageError ="ERROR   Cannot asign reference to a reference";
@@ -953,6 +963,7 @@ void analizeBuffer(){
 
                                     char* adressToSend = *refAdress + (char*) startAdress;
 
+                                    void* oldAdress = refVoidAdress;
                                     void* voidAdressToSend = adressToSend;
                                     void* voidSecondAdressToSend = refAdress;
 
@@ -962,9 +973,14 @@ void analizeBuffer(){
                                     std::stringstream ss2;
                                     ss2 << voidSecondAdressToSend;
                                     string refAdressString = ss2.str();
+                                    std::stringstream ss3;
+                                    ss3 << oldAdress;
+                                    string oldAdressString = ss3.str();
 
                                     jsonBuffer["adress"] = refAdressString;
                                     jsonBuffer["value"] = adressToSendString;
+                                    jsonBuffer["referenceFlag"] = "true4";
+                                    jsonBuffer["oldAdress"] = oldAdressString;
                                     string sendJson = jsonBuffer.dump();
                                     cout << returningAdress << endl;
                                     memset(buffer,0,255);
