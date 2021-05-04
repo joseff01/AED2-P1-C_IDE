@@ -12,7 +12,14 @@
 #include <netdb.h>
 #include <iostream>
 
-
+/*
+ * int a =3;
+int b =4;
+reference<int> c = getaddr(a);
+reference<int> d = c;
+reference<int> e = getaddr(b);
+d =e;
+*/
 using json = nlohmann::json;
 
 //Server Connection Glstdio::obal Variables:
@@ -267,7 +274,7 @@ void MainWindow::ramView(QString memory, QString value, QString name, QString re
     ui->valueTextEdit->append(value);
     ui->nameTextEdit->append(name);
     ui->referenceTextEdit->append(reference);
-    alignText();
+    //alignText();
 }
 
 void MainWindow::readBuffer(){
@@ -298,7 +305,7 @@ void MainWindow::readBuffer(){
                 ui->valueTextEdit->append("NULL");
                 ui->referenceTextEdit->append(variableReference);
             }
-            alignText();
+            //alignText();
         }
         else if(referenceFlag == "true2"){
             QString referenceText= ui->referenceTextEdit->toPlainText();
@@ -317,27 +324,49 @@ void MainWindow::readBuffer(){
                 QString temp =referenceList.join("\n");
                 ui->referenceTextEdit->setText(temp);
             }
-            alignText();
-        }else if(referenceFlag == "true3"){
+
+        }else if(referenceFlag == "true3" or referenceFlag == "true4"){
             QString value = QString::fromStdString(jsonBuffer["value"]);
             QString name = QString::fromStdString(jsonBuffer["name"]);
             QString reference = QString::fromStdString(jsonBuffer["referenceCounter"]);
             QString memoryVal = QString::fromStdString(jsonBuffer["adress"]);
+
             QString memory = ui->memoryTextEdit->toPlainText();
             QStringList memoryList = memory.split("\n");
+
             QString referenceText= ui->referenceTextEdit->toPlainText();
             QStringList referenceList = referenceText.split("\n");
+
             string numString = referenceList[memoryList.indexOf(value)].toStdString();
+
             int num = stoi(numString);
             num =num+1;
+
+            if(referenceFlag == "true4"){
+                QString oldAddress = QString::fromStdString(jsonBuffer["oldAdress"]);
+                QString valueText = ui->valueTextEdit->toPlainText();
+                QStringList valueList = valueText.split("\n");
+                valueList[memoryList.indexOf(memoryVal)] = value;
+                QString temp =valueList.join("\n");
+                ui->valueTextEdit->setText(temp);
+                string numString2 = referenceList[memoryList.indexOf(oldAddress)].toStdString();
+
+                int number = stoi(numString2);
+                number = number-1;
+                referenceList[memoryList.indexOf(oldAddress)] = QString::number(number);
+            }
+
+
             referenceList[memoryList.indexOf(value)] = QString::number(num);
             QString temp =referenceList.join("\n");
             ui->referenceTextEdit->setText(temp);
-            ui->referenceTextEdit->setAlignment(Qt::AlignCenter);
-            ui->valueTextEdit->append(value);
-            ui->memoryTextEdit->append(memoryVal);
-            ui->nameTextEdit->append(name);
-            ui->referenceTextEdit->append(reference);
+
+            if(referenceFlag == "true3"){
+                ui->valueTextEdit->append(value);
+                ui->memoryTextEdit->append(memoryVal);
+                ui->nameTextEdit->append(name);
+                ui->referenceTextEdit->append(reference);
+            }
         }
 
         else{
@@ -355,7 +384,6 @@ void MainWindow::readBuffer(){
             valueList[textList.indexOf(name)]= value;
             QString temp =valueList.join("\n");
             ui->valueTextEdit->setText(temp);
-            alignText();
 
         }else if(type =="cout"){
             cout(jsonBuffer["value"]);
@@ -390,7 +418,7 @@ void MainWindow::readBuffer(){
             ui->valueTextEdit->setText(tempValue);
             ui->memoryTextEdit->setText(tempMemory);
             ui->referenceTextEdit->setText(tempReference);
-            alignText();
+            //alignText();
         }
         else{
             QString value = QString::fromStdString(jsonBuffer["value"]);
@@ -690,24 +718,7 @@ void MainWindow::on_deleteButton_clicked()
     ui->applicationLogTextEdit->append("INFO       Sending Json to server");
     if (n < 0){serverError("ERROR writing to socket");}
 
-    alignText();
-
 }
-
-
-void MainWindow::alignText(){
-    std::vector<QTextEdit*> alignmentList;
-    alignmentList.push_back(ui->memoryTextEdit);
-    alignmentList.push_back(ui->valueTextEdit);
-    alignmentList.push_back(ui->nameTextEdit);
-    alignmentList.push_back(ui->referenceTextEdit);
-
-    int i;
-    for (i=0; i<alignmentList.size();i++){
-        alignmentList[i]->setAlignment(Qt::AlignCenter);
-    }
-}
-
 
 QStringList MainWindow::getStructName(){return this->structNames;}
 void MainWindow::setStructName(QStringList list){this->structNames=list;}
