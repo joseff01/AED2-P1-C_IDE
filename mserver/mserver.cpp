@@ -960,9 +960,12 @@ void Mserver::analizeBuffer(){
 
                                     char* adressToSend = *refAdress + (char*) startAdress;
 
-                                    void* oldAdress = refVoidAdress;
+                                    int offsetOldVariable = *refAdress;
+                                    char* oldVariableAdress = (char*)  startAdress + offsetOldVariable;
+
                                     void* voidAdressToSend = adressToSend;
                                     void* voidSecondAdressToSend = refAdress;
+                                    void* voidOldVariableAdress = oldVariableAdress;
 
                                     std::stringstream ss1;
                                     ss1 << voidAdressToSend;
@@ -971,7 +974,7 @@ void Mserver::analizeBuffer(){
                                     ss2 << voidSecondAdressToSend;
                                     string refAdressString = ss2.str();
                                     std::stringstream ss3;
-                                    ss3 << oldAdress;
+                                    ss3 << voidOldVariableAdress;
                                     string oldAdressString = ss3.str();
 
                                     jsonBuffer["adress"] = refAdressString;
