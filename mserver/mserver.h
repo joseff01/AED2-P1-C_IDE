@@ -2,7 +2,6 @@
   * @file mserver.h
   * @authors Mariana Navarro Jiménez, Jose Andres Arroyo, Jose Antonio Retana Corrales
   * @date 4/23/2020
-  * @title Clase Header para la clase mserver
   * @brief plantilla de clase mserver para el manejo de los request de memoria del objeto MainWindow
   * Mediante el envio de mensajes de tipo Json desde el objeto MainWindow, Mserver realiza los requests enviados por este. Estos requests pueden ser : guardado de variables, terminacion de scopes, declaracion de structs, entre otros.
   */

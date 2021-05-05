@@ -325,6 +325,7 @@ vector<string> Mserver::removeScopeMemory(){
     return eliminatedVariableNames;
 }
 
+
 void Mserver::analizeBuffer(){
     string strBuffer(buffer);
     cout << strBuffer << endl;
